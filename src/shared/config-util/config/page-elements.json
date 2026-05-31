@@ -1,0 +1,194 @@
+[
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "data_permission_field:add",
+    "pageElementType": "button",
+    "pageCode": "data_permission_field",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "data_permission_field:delete",
+    "pageElementType": "button",
+    "pageCode": "data_permission_field",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "data_permission_field:edit",
+    "pageElementType": "button",
+    "pageCode": "data_permission_field",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "data_permission_group_user_relation:add",
+    "pageElementType": "button",
+    "pageCode": "data_permission_group_user_relation",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "data_permission_group_user_relation:delete",
+    "pageElementType": "button",
+    "pageCode": "data_permission_group_user_relation",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "data_permission_group_user_relation:edit",
+    "pageElementType": "button",
+    "pageCode": "data_permission_group_user_relation",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "data_permission_group:add",
+    "pageElementType": "button",
+    "pageCode": "data_permission_group",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "data_permission_group:delete",
+    "pageElementType": "button",
+    "pageCode": "data_permission_group",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "data_permission_group:edit",
+    "pageElementType": "button",
+    "pageCode": "data_permission_group",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "data_permission_meta:add",
+    "pageElementType": "button",
+    "pageCode": "data_permission_meta",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "data_permission_meta:delete",
+    "pageElementType": "button",
+    "pageCode": "data_permission_meta",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "data_permission_meta:edit",
+    "pageElementType": "button",
+    "pageCode": "data_permission_meta",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "data_permission_model:add",
+    "pageElementType": "button",
+    "pageCode": "data_permission_model",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "data_permission_model:delete",
+    "pageElementType": "button",
+    "pageCode": "data_permission_model",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "data_permission_model:edit",
+    "pageElementType": "button",
+    "pageCode": "data_permission_model",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "data_permission_other:add",
+    "pageElementType": "button",
+    "pageCode": "data_permission_other",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "data_permission_other:delete",
+    "pageElementType": "button",
+    "pageCode": "data_permission_other",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "data_permission_other:edit",
+    "pageElementType": "button",
+    "pageCode": "data_permission_other",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "department_user_relation:add",
+    "pageElementType": "button",
+    "pageCode": "department_user_relation",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "department_user_relation:delete",
+    "pageElementType": "button",
+    "pageCode": "department_user_relation",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "department_user_relation:edit",
+    "pageElementType": "button",
+    "pageCode": "department_user_relation",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "新增",
+    "pageElementCode": "department:add",
+    "pageElementType": "button",
+    "pageCode": "department",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "删除",
+    "pageElementCode": "department:delete",
+    "pageElementType": "button",
+    "pageCode": "department",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "编辑",
+    "pageElementCode": "department:edit",
+    "pageElementType": "button",
+    "pageCode": "department",
+    "status": "ENABLED"
+  }
+]

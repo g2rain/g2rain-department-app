@@ -1,0 +1,42 @@
+[
+  {
+    "pageName": "部门表",
+    "pageCode": "department",
+    "linkPath": "/department"
+  },
+  {
+    "pageName": "部门人员关系表",
+    "pageCode": "department_user_relation",
+    "linkPath": "/department_user_relation"
+  },
+  {
+    "pageName": "数据权限模型全局元数据表",
+    "pageCode": "data_permission_model",
+    "linkPath": "/data_permission_model"
+  },
+  {
+    "pageName": "数据权限模型字段明细表",
+    "pageCode": "data_permission_field",
+    "linkPath": "/data_permission_field"
+  },
+  {
+    "pageName": "数据权限元数据表",
+    "pageCode": "data_permission_meta",
+    "linkPath": "/data_permission_meta"
+  },
+  {
+    "pageName": "数据权限小组表",
+    "pageCode": "data_permission_group",
+    "linkPath": "/data_permission_group"
+  },
+  {
+    "pageName": "数据权限小组人员关系表",
+    "pageCode": "data_permission_group_user_relation",
+    "linkPath": "/data_permission_group_user_relation"
+  },
+  {
+    "pageName": "数据权限",
+    "pageCode": "data_permission_other",
+    "linkPath": "/data_permission_other"
+  }
+]
