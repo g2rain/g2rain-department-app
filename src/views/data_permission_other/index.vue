@@ -139,6 +139,7 @@
                 placeholder="选择字段"
                 :disabled="!editForm.metaId || metaFields.length === 0"
                 class="permission-rule-builder__field"
+                style="width: 140px"
               >
                 <el-option
                   v-for="field in availableFieldsForRow(index)"
@@ -627,15 +628,27 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  min-width: 0;
 }
 
 .permission-rule-builder__field {
-  width: 200px;
-  flex-shrink: 0;
+  flex: 0 0 140px;
+  width: 140px;
+}
+
+.permission-rule-builder__field :deep(.el-select__wrapper) {
+  width: 100%;
+}
+
+.permission-rule-builder__field :deep(.el-select__selected-item) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .permission-rule-builder__values {
   flex: 1;
+  min-width: 0;
 }
 
 .permission-rule-builder__hint {
