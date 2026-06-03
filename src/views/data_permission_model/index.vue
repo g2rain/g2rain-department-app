@@ -3,14 +3,14 @@
   <div class="data_permission_model-page">
     <el-card class="data_permission_model-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
+        <el-form-item label="模型名称">
+          <el-input v-model="queryForm.modelName" placeholder="请输入模型名称" clearable style="width: 200px" />
+        </el-form-item>
         <el-form-item label="模块编码">
           <el-input v-model="queryForm.moduleCode" placeholder="请输入模块编码" clearable style="width: 200px" />
         </el-form-item>
         <el-form-item label="业务表名">
           <el-input v-model="queryForm.tableName" placeholder="请输入业务表名" clearable style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="备注说明">
-          <el-input v-model="queryForm.remark" placeholder="请输入备注说明" clearable style="width: 200px" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">查询</el-button>
@@ -21,23 +21,23 @@
 
     <div class="data_permission_model-page__header">
       <div class="data_permission_model-page__title-group">
-        <h2>管理数据权限模型</h2>
+        <h2>管理权限模型</h2>
       </div>
       <el-button type="primary" v-permission="'data_permission_model:add'" @click="handleCreate">新增权限模型</el-button>
     </div>
 
     <SortableTable :data="tableData" border stripe style="width: 100%" :enable-multi-sort="true" @sort-change="handleSortChange">
       <el-table-column prop="id" label="ID" width="120" />
+      <el-table-column prop="modelName" label="模型名称" min-width="160" show-overflow-tooltip />
       <el-table-column prop="moduleCode" label="模块编码" width="180" />
       <el-table-column prop="tableName" label="业务表名" width="180" />
-      <el-table-column prop="remark" label="备注说明" width="180" />
       <TableColumn prop="createTime" label="创建时间" width="180" :sortable="true" />
       <TableColumn prop="updateTime" label="更新时间" width="180" :sortable="true" />
       <el-table-column label="操作" fixed="right" width="300">
         <template #default="{ row }">
           <el-button type="primary" link size="small" @click="handleView(row)">明细</el-button>
           <el-button type="primary" v-permission="'data_permission_model:edit'" link size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="primary" link size="small" @click="handleConditionField(row)">条件字段</el-button>
+          <el-button type="primary" v-permission="'data_permission_model:condition_field'" link size="small" @click="handleConditionField(row)">条件字段</el-button>
           <el-button type="danger" v-permission="'data_permission_model:delete'" link size="small" @click="handleDelete(row)">删除</el-button>
         </template>
         <template #header>
@@ -63,6 +63,9 @@
 
     <el-dialog v-model="editDialogVisible" :title="isEdit ? '编辑权限模型' : '新增权限模型'" width="520px">
       <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
+        <el-form-item label="模型名称" prop="modelName">
+          <el-input v-model="editForm.modelName" placeholder="请输入模型名称" />
+        </el-form-item>
         <el-form-item label="模块编码" prop="moduleCode">
           <el-input v-model="editForm.moduleCode" placeholder="请输入模块编码" />
         </el-form-item>
@@ -84,6 +87,7 @@
     <el-dialog v-model="detailDialogVisible" title="权限模型明细" width="520px">
       <el-descriptions :column="1" border>
         <el-descriptions-item label="ID">{{ currentRow?.id }}</el-descriptions-item>
+        <el-descriptions-item label="模型名称">{{ currentRow?.modelName }}</el-descriptions-item>
         <el-descriptions-item label="模块编码">{{ currentRow?.moduleCode }}</el-descriptions-item>
         <el-descriptions-item label="业务表名">{{ currentRow?.tableName }}</el-descriptions-item>
         <el-descriptions-item label="备注说明">{{ currentRow?.remark }}</el-descriptions-item>
@@ -114,9 +118,9 @@ import type { PageSelectListDto } from '@platform/types/api.type';
 import { SortableTable, TableColumn, SortManagerButton, showErrorMessage } from '@/components';
 
 const queryForm = reactive({
+  modelName: '',
   moduleCode: '',
   tableName: '',
-  remark: '',
   sorts: undefined as string[] | undefined,
 });
 
@@ -162,9 +166,9 @@ const handleSearch = () => {
 };
 
 const handleReset = () => {
+  queryForm.modelName = '';
   queryForm.moduleCode = '';
   queryForm.tableName = '';
-  queryForm.remark = '';
   queryForm.sorts = undefined;
   pagination.pageNum = 1;
   loadData();
@@ -212,12 +216,14 @@ const editFormRef = ref<FormInstance | null>(null);
 
 const editForm = reactive({
   id: undefined as number | undefined,
+  modelName: '',
   moduleCode: '',
   tableName: '',
   remark: '',
 });
 
 const editRules: FormRules = {
+  modelName: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
   moduleCode: [{ required: true, message: '请输入模块编码', trigger: 'blur' }],
   tableName: [{ required: true, message: '请输入业务表名', trigger: 'blur' }],
 };
@@ -225,6 +231,7 @@ const editRules: FormRules = {
 const handleCreate = () => {
   isEdit.value = false;
   editFormRef.value?.clearValidate();
+  editForm.modelName = '';
   editForm.moduleCode = '';
   editForm.tableName = '';
   editForm.remark = '';
@@ -235,6 +242,7 @@ const handleEdit = (row: DataPermissionModel) => {
   isEdit.value = true;
   editFormRef.value?.clearValidate();
   editForm.id = row.id;
+  editForm.modelName = row.modelName;
   editForm.moduleCode = row.moduleCode;
   editForm.tableName = row.tableName;
   editForm.remark = row.remark;
@@ -247,6 +255,7 @@ const submitEdit = async () => {
   if (!valid) return;
 
   const payload: DataPermissionModelPayload = {
+    modelName: editForm.modelName,
     moduleCode: editForm.moduleCode,
     tableName: editForm.tableName,
     remark: editForm.remark,

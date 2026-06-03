@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { DataPermissionFieldApi } from './api';
@@ -82,8 +82,6 @@ import type { PageSelectListDto } from '@platform/types/api.type';
 import { showErrorMessage } from '@/components';
 
 const props = defineProps<{ modelId?: number }>();
-
-const embedded = computed(() => props.modelId != null);
 
 const queryForm = reactive({
   modelId: props.modelId,

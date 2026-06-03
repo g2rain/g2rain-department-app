@@ -4,6 +4,7 @@
  */
 
 import { getHttpClient } from '@/components/http';
+import { DepartmentApi } from '../department/api';
 import type { DataPermissionGroup, DataPermissionGroupPayload, DataPermissionGroupQuery } from './type';
 import type { PageData, PageSelectListDto } from '@platform/types/api.type';
 
@@ -63,6 +64,27 @@ export class DataPermissionGroupApi {
   static async remove(id: number): Promise<void> {
     const http = getHttpClient('default');
     await http.delete(`/department/data_permission_group/${id}`);
+  }
+
+  static async updateStatus(id: number, status: string): Promise<void> {
+    const http = getHttpClient('default');
+    await http.post(`/department/data_permission_group/${id}/status`, { status });
+  }
+
+  /** 按机构查询部门，供下拉选择 deptPath（值为路径编码，展示为部门名称） */
+  static createDeptPathSelectMethod(organId?: number) {
+    return async (params: { key?: string; value?: string | number }) => {
+      if (organId == null) {
+        return [];
+      }
+      if (params.value != null) {
+        const depts = await DepartmentApi.list({ organId, deptPath: String(params.value) });
+        return depts.map(d => ({ id: d.deptPath, name: d.deptName || d.deptPath }));
+      }
+      const keyword = params.key?.trim() ?? '';
+      const depts = await DepartmentApi.list(keyword ? { organId, deptName: keyword } : { organId });
+      return depts.map(d => ({ id: d.deptPath, name: d.deptName || d.deptPath }));
+    };
   }
 }
 

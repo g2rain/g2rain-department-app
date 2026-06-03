@@ -2,7 +2,6 @@ CREATE TABLE `department` (
     `id` BIGINT NOT NULL COMMENT                                                                        '主键标识',
     `parent_id` BIGINT NOT NULL DEFAULT 0 COMMENT                                                       '父部门标识，根节点为0',
     `organ_id` BIGINT NOT NULL COMMENT                                                                  '机构标识',
-    `dept_code` VARCHAR(32) NOT NULL COMMENT                                                            '当前层级编码（固定4位步长）',
     `dept_path` VARCHAR(128) NOT NULL COMMENT                                                           '全路径编码，如 00010001',
     `dept_name` VARCHAR(128) NOT NULL COMMENT                                                           '部门名称',
     `leader_user_id` BIGINT NULL COMMENT                                                                '负责人用户标识',
@@ -31,6 +30,7 @@ CREATE TABLE `department_user_relation` (
 
 CREATE TABLE `data_permission_model` (
     `id` BIGINT NOT NULL COMMENT                                                                        '主键标识',
+    `model_name` VARCHAR(128) NOT NULL COMMENT                                                          '权限模型名称',
     `module_code` VARCHAR(64) NOT NULL COMMENT                                                          '模块编码，如 order, crm, inventory',
     `table_name` VARCHAR(128) NOT NULL COMMENT                                                          '业务表名（建议小写）',
     `remark` VARCHAR(512) NULL COMMENT                                                                  '备注说明（如：订单主表权限模型）',
@@ -59,6 +59,7 @@ CREATE TABLE `data_permission_field` (
 CREATE TABLE `data_permission_meta` (
     `id` BIGINT NOT NULL COMMENT                                                                        '主键标识',
     `organ_id` BIGINT NOT NULL COMMENT                                                                  '机构标识',
+    `meta_name` VARCHAR(128) NOT NULL COMMENT                                                           '权限策略名称',
     `model_id` BIGINT NOT NULL COMMENT                                                                  '权限模型标识',
     `permission_mode` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT                                       '权限模式[例如 rw]',
     `status` VARCHAR(32) NOT NULL DEFAULT 'ACTIVE' COMMENT                                              '状态[ACTIVE:有效, INACTIVE:停用]',

@@ -50,9 +50,9 @@ export class DepartmentApi {
    * @param payload 部门表数据（包含 id 时为更新，不包含时为新增）
    * @returns 保存后的部门表
    */
-  static async save(payload: DepartmentPayload): Promise<Department> {
+  static async save(payload: DepartmentPayload): Promise<number> {
     const http = getHttpClient('default');
-    const res = await http.post<Department>('/department/department/save', payload);
+    const res = await http.post<number>('/department/department/save', payload);
     return res.data;
   }
 
@@ -63,6 +63,11 @@ export class DepartmentApi {
   static async remove(id: number): Promise<void> {
     const http = getHttpClient('default');
     await http.delete(`/department/department/${id}`);
+  }
+
+  static async updateStatus(id: number, status: string): Promise<void> {
+    const http = getHttpClient('default');
+    await http.post(`/department/department/${id}/status`, { status });
   }
 }
 

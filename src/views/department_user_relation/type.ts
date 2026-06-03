@@ -11,6 +11,9 @@ export interface DepartmentUserRelation extends BaseVo {
   organId: number;
   departmentId: number;
   userId: number;
+  /** 列表展示用，由前端按 userId 调用户 list 补齐 */
+  realName?: string;
+  mobile?: string;
 }
 
 /**
@@ -33,5 +36,12 @@ export interface DepartmentUserRelationQuery extends BaseSelectListDto {
   organId?: number;
   departmentId?: number;
   userId?: number;
+}
+
+/** 批量添加部门用户 */
+export interface DepartmentAssignUsersPayload {
+  organId: number;
+  departmentId: number;
+  userIds: number[];
 }
 

@@ -9,8 +9,11 @@
         <el-form-item label="部门名称">
           <el-input v-model="queryForm.deptName" placeholder="请输入部门名称" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item label="部门编码">
-          <el-input v-model="queryForm.deptCode" placeholder="请输入部门编码" clearable style="width: 200px" />
+        <el-form-item label="部门路径">
+          <el-input v-model="queryForm.deptPath" placeholder="请输入部门路径" clearable style="width: 200px" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" placeholder="请选择状态" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">查询</el-button>
@@ -35,14 +38,21 @@
     >
       <el-table-column prop="deptName" label="部门名称" width="180" />
       <el-table-column prop="id" label="部门标识" width="100" />
-      <el-table-column prop="organId" label="所属机构" width="140">
+      <el-table-column prop="organName" label="所属机构" width="140"/>
+      <el-table-column prop="deptPath" label="部门路径" width="160" />
+      <el-table-column prop="status" label="状态" width="180">
         <template #default="{ row }">
-          {{ organOptions.find(item => item.value === row?.organId)?.label || '' }}
+          <StatusSwitch
+            v-model="row.status"
+            permission="department:status_update"
+            active-value="ACTIVE"
+            inactive-value="INACTIVE"
+            :options="statusOptions"
+            :api-method="({ nextValue }) => DepartmentApi.updateStatus(row.id, String(nextValue))"
+            @success="loadData"
+          />
         </template>
       </el-table-column>
-      <el-table-column prop="deptCode" label="部门编码" width="120" />
-      <el-table-column prop="deptPath" label="部门路径" width="160" />
-      <el-table-column prop="status" label="状态" width="100" />
       <el-table-column prop="sortOrder" label="排序" width="70" />
       <el-table-column prop="createTime" label="创建时间" width="180" />
       <el-table-column prop="updateTime" label="更新时间" width="180" />
@@ -50,7 +60,7 @@
         <template #default="{ row }">
           <el-button link type="primary" v-permission="'department:edit'" @click="handleEdit(row)">编辑</el-button>
           <el-button link type="success" v-permission="'department:add'" @click="handleCreate(row)">新增子部门</el-button>
-          <el-button link type="primary" @click="handleDepartmentUsers(row)">关联用户</el-button>
+          <el-button link type="primary" v-permission="'department:relation_users'" @click="handleDepartmentUsers(row)">关联用户</el-button>
           <el-button link type="danger" v-permission="'department:delete'" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
@@ -64,20 +74,14 @@
         <el-form-item label="部门名称" prop="deptName">
           <el-input v-model="editForm.deptName" placeholder="请输入部门名称" />
         </el-form-item>
-        <el-form-item label="部门编码" prop="deptCode">
-          <el-input v-model="editForm.deptCode" placeholder="请输入部门编码" />
-        </el-form-item>
-        <el-form-item label="部门路径" prop="deptPath">
-          <el-input v-model="editForm.deptPath" placeholder="请输入部门路径" />
-        </el-form-item>
-        <el-form-item label="负责人用户ID" prop="leaderUserId">
-          <el-input v-model="editForm.leaderUserId" placeholder="请输入负责人用户ID" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="editForm.status" placeholder="请选择状态" style="width: 200px">
-            <el-option label="有效" value="ACTIVE" />
-            <el-option label="停用" value="INACTIVE" />
-          </el-select>
+        <el-form-item label="负责人" prop="leaderUserId">
+          <UserSelect
+            :key="`leader-${editForm.organId ?? 'none'}`"
+            v-model="editForm.leaderUserId"
+            :organ-id="editForm.organId"
+            placeholder="请输入姓名搜索负责人"
+            width="100%"
+          />
         </el-form-item>
         <el-form-item label="部门排序" prop="sortOrder">
           <el-input-number v-model="editForm.sortOrder" :min="0" :step="1" />
@@ -98,31 +102,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue';
+import { ref, computed, reactive, onMounted, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { DepartmentApi } from './api';
 import { OrganApi } from '../organ/api';
+import { DictItemApi } from '../dict/api';
+import { useCommonStatus } from '../shared/useCommonStatus';
 import DepartmentUserRelationPage from '../department_user_relation/index.vue';
 import type { Department, DepartmentPayload, DepartmentQuery } from './type';
-import { OrganSelect, showErrorMessage } from '@/components';
+import { OrganSelect, UserSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+
+const { statusOptions, loadCommonStatusDict } = useCommonStatus();
 
 type DepartmentTreeNode = Department & { children?: DepartmentTreeNode[] };
 
 const queryForm = reactive({
   organId: undefined as number | undefined,
   deptName: '',
-  deptCode: '',
+  deptPath: '',
+  status: '',
 });
-
-const organOptions = ref<Array<{ label: string; value: number }>>([]);
-
-const loadDicts = async () => {
-  organOptions.value = (await OrganApi.searchOrgans('')).map(o => ({
-    value: o.organId,
-    label: o.organName || `${o.organId}`,
-  }));
-};
 
 const tableData = ref<Department[]>([]);
 
@@ -167,7 +167,8 @@ const handleSearch = () => {
 const handleReset = () => {
   queryForm.organId = undefined;
   queryForm.deptName = '';
-  queryForm.deptCode = '';
+  queryForm.deptPath = '';
+  queryForm.status = '';
   loadData();
 };
 
@@ -194,22 +195,24 @@ const editForm = reactive({
   id: undefined as number | undefined,
   parentId: 0,
   organId: undefined as number | undefined,
-  deptCode: '',
-  deptPath: '',
   deptName: '',
   leaderUserId: undefined as number | undefined,
-  status: 'ACTIVE',
   sortOrder: 0,
 });
 
 const editRules: FormRules = {
   organId: [{ required: true, message: '请选择所属机构', trigger: 'change' }],
-  deptCode: [{ required: true, message: '请输入部门编码', trigger: 'blur' }],
-  deptPath: [{ required: true, message: '请输入部门路径', trigger: 'blur' }],
   deptName: [{ required: true, message: '请输入部门名称', trigger: 'blur' }],
-  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
   sortOrder: [{ required: true, message: '请输入部门排序', trigger: 'blur' }],
 };
+
+watch(
+  () => editForm.organId,
+  (_organId, prevOrganId) => {
+    if (isEdit.value || prevOrganId == null) return;
+    editForm.leaderUserId = undefined;
+  },
+);
 
 const handleCreate = (row?: Department) => {
   isEdit.value = false;
@@ -219,11 +222,8 @@ const handleCreate = (row?: Department) => {
   editForm.id = undefined;
   editForm.parentId = row?.id ?? 0;
   editForm.organId = row?.organId;
-  editForm.deptCode = '';
-  editForm.deptPath = '';
   editForm.deptName = '';
   editForm.leaderUserId = undefined;
-  editForm.status = 'ACTIVE';
   editForm.sortOrder = 0;
   editDialogVisible.value = true;
 };
@@ -236,11 +236,8 @@ const handleEdit = (row: Department) => {
   editForm.id = row.id;
   editForm.parentId = row.parentId;
   editForm.organId = row.organId;
-  editForm.deptCode = row.deptCode;
-  editForm.deptPath = row.deptPath;
   editForm.deptName = row.deptName;
   editForm.leaderUserId = row.leaderUserId;
-  editForm.status = row.status;
   editForm.sortOrder = row.sortOrder;
   editDialogVisible.value = true;
 };
@@ -252,14 +249,14 @@ const submitEdit = async () => {
 
   const payload: DepartmentPayload = {
     parentId: editForm.parentId,
-    organId: editForm.organId,
-    deptCode: editForm.deptCode,
-    deptPath: editForm.deptPath,
+    organId: editForm.organId!,
     deptName: editForm.deptName,
-    leaderUserId: editForm.leaderUserId,
-    status: editForm.status,
     sortOrder: editForm.sortOrder,
   };
+
+  if (editForm.leaderUserId != null) {
+    payload.leaderUserId = editForm.leaderUserId;
+  }
 
   try {
     if (isEdit.value) {
@@ -285,7 +282,7 @@ const handleDepartmentUsers = (row: Department) => {
 };
 
 onMounted(async () => {
-  await loadDicts();
+  await loadCommonStatusDict();
   await loadData();
 });
 </script>
