@@ -59,7 +59,12 @@ export const routeMap: Record<string, ViewRouteConfig> = {
     component: () => import('@/views/data_permission_other/index.vue'),
     name: 'DataPermissionOther',
     meta: { title: '数据权限', requiresAuth: true, showInHome: true },
-  }
+  },
+    '/contract': {
+            component: () => import('@/views/contract/index.vue'),
+            name: 'Contract',
+            meta: { title: '客户表', requiresAuth: true, showInHome: true },
+        }
 };
 
 export function getRouteComponent(
