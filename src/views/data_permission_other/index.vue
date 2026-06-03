@@ -59,7 +59,7 @@
         <template #default="{ row }">
           <StatusSwitch
             v-model="row.status"
-            permission="data_permission_other:status_update"
+            v-permission="'data_permission_other:status_update'"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
             :options="statusOptions"

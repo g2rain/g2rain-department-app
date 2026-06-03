@@ -1,7 +1,7 @@
 <template>
   <el-switch
     v-model="innerValue"
-    :disabled="isDisabled"
+    :disabled="disabled || loading ? true : undefined"
     :loading="loading"
     :inline-prompt="inlinePrompt"
     :active-value="activeValue"
@@ -13,9 +13,15 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * 状态列开关封装。
+ *
+ * 权限：在业务页使用 v-permission="'page:status_update'" 绑定在本组件上，
+ * 指令会透传到根节点 el-switch（与按钮同一套权限体系；ENABLED 可操作，VISIBLE/无权限置灰）。
+ * build:config 扫描 v-permission 静态字符串即可收集。
+ */
 import { computed, nextTick, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { PageElementPermission } from '@/components/permission';
 
 type StatusValue = string | number | boolean;
 
@@ -29,7 +35,6 @@ interface Props {
   activeValue?: StatusValue;
   inactiveValue?: StatusValue;
   options?: StatusOption[];
-  permission?: string;
   disabled?: boolean;
   inlinePrompt?: boolean;
   successMessage?: string;
@@ -46,6 +51,8 @@ interface Emits {
   (e: 'error', payload: { nextValue: StatusValue; prevValue: StatusValue; error: unknown }): void;
 }
 
+defineOptions({ inheritAttrs: true });
+
 const props = withDefaults(defineProps<Props>(), {
   activeValue: 'ACTIVE',
   inactiveValue: 'INACTIVE',
@@ -57,34 +64,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-/**
- * ======================
- * 核心状态（使用 active/inactive 值）
- * ======================
- */
 const innerValue = ref<StatusValue>(props.modelValue);
 const loading = ref(false);
-
-/** 外部同步 innerValue 时忽略 change，避免误调接口 */
 const ignoreChange = ref(false);
-
-/** 回滚保护 */
 const isRollingBack = ref(false);
 
-/**
- * 权限：始终展示开关；仅 ENABLED 可操作，VISIBLE / 无权限则置灰
- */
-const isDisabled = computed(() => {
-  if (props.disabled || loading.value) return true;
-  if (!props.permission) return false;
-  return !PageElementPermission.isEnabled(props.permission);
-});
-
-/**
- * ======================
- * 文案
- * ======================
- */
 const activeLabel = computed(() => {
   const hit = props.options?.find(i => i.value === props.activeValue);
   return hit?.label || (props.activeValue === 'ACTIVE' ? '有效' : String(props.activeValue));
@@ -95,11 +79,6 @@ const inactiveLabel = computed(() => {
   return hit?.label || (props.inactiveValue === 'INACTIVE' ? '无效' : String(props.inactiveValue));
 });
 
-/**
- * ======================
- * 外部值 → 内部同步（无副作用）
- * ======================
- */
 watch(
   () => props.modelValue,
   async (val) => {
@@ -110,25 +89,14 @@ watch(
   }
 );
 
-/**
- * ======================
- * 状态变更处理（核心逻辑）
- * ======================
- */
 const handleChange = async (val: StatusValue) => {
   if (ignoreChange.value || isRollingBack.value) return;
 
   const nextValue = val;
   const prevValue = props.modelValue;
 
-  /**
-   * 无变化不处理
-   */
   if (nextValue === prevValue) return;
 
-  /**
-   * 乐观更新
-   */
   emit('update:modelValue', nextValue);
 
   loading.value = true;
@@ -141,11 +109,7 @@ const handleChange = async (val: StatusValue) => {
     }
 
     emit('success', { nextValue, prevValue });
-
   } catch (error) {
-    /**
-     * 回滚（不会触发接口）
-     */
     isRollingBack.value = true;
 
     innerValue.value = prevValue;
@@ -156,7 +120,6 @@ const handleChange = async (val: StatusValue) => {
     }
 
     emit('error', { nextValue, prevValue, error });
-
   } finally {
     loading.value = false;
     isRollingBack.value = false;

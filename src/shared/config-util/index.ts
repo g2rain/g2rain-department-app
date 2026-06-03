@@ -26,8 +26,8 @@ export async function generateConfig(options: GenerateConfigOptions): Promise<vo
   const pages = await parseRouteMap(routeMapPath);
   console.log(`   ✓ 找到 ${pages.length} 个页面资源`);
 
-  // 2. 解析 Vue 文件生成 page element
-  console.log('📖 解析 Vue 文件中的权限指令...');
+  // 2. 解析 Vue 文件生成 page element（v-permission）
+  console.log('📖 解析 Vue 文件中的 v-permission...');
   const pageElements = await parseVueFiles(viewsDir, pages);
   console.log(`   ✓ 找到 ${pageElements.length} 个页面元素`);
 

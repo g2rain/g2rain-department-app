@@ -51,7 +51,7 @@
         <template #default="{ row }">
           <StatusSwitch
             v-model="row.status"
-            permission="data_permission_meta:status_update"
+            v-permission="'data_permission_meta:status_update'"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
             :options="statusOptions"

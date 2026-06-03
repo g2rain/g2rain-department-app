@@ -41,6 +41,14 @@
   },
   {
     "parentId": null,
+    "pageElementName": "状态变更",
+    "pageElementCode": "data_permission_group_user_relation:status_update",
+    "pageElementType": "switch",
+    "pageCode": "data_permission_group_user_relation",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
     "pageElementName": "新增",
     "pageElementCode": "data_permission_group:add",
     "pageElementType": "button",
@@ -81,6 +89,14 @@
   },
   {
     "parentId": null,
+    "pageElementName": "状态变更",
+    "pageElementCode": "data_permission_group:status_update",
+    "pageElementType": "switch",
+    "pageCode": "data_permission_group",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
     "pageElementName": "新增",
     "pageElementCode": "data_permission_meta:add",
     "pageElementType": "button",
@@ -100,6 +116,14 @@
     "pageElementName": "编辑",
     "pageElementCode": "data_permission_meta:edit",
     "pageElementType": "button",
+    "pageCode": "data_permission_meta",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "状态变更",
+    "pageElementCode": "data_permission_meta:status_update",
+    "pageElementType": "switch",
     "pageCode": "data_permission_meta",
     "status": "ENABLED"
   },
@@ -161,6 +185,14 @@
   },
   {
     "parentId": null,
+    "pageElementName": "状态变更",
+    "pageElementCode": "data_permission_other:status_update",
+    "pageElementType": "switch",
+    "pageCode": "data_permission_other",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
     "pageElementName": "新增",
     "pageElementCode": "department_user_relation:add",
     "pageElementType": "button",
@@ -204,6 +236,14 @@
     "pageElementName": "关联用户",
     "pageElementCode": "department:relation_users",
     "pageElementType": "button",
+    "pageCode": "department",
+    "status": "ENABLED"
+  },
+  {
+    "parentId": null,
+    "pageElementName": "状态变更",
+    "pageElementCode": "department:status_update",
+    "pageElementType": "switch",
     "pageCode": "department",
     "status": "ENABLED"
   }

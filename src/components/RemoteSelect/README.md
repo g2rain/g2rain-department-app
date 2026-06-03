@@ -215,11 +215,13 @@ const form = reactive({
 
 ### StatusSwitch（推荐：状态列封装）
 
+权限与按钮一致：在组件上写 `v-permission="'xxx:status_update'"`，`build:config` 会扫描；运行时 ENABLED 可操作，VISIBLE/无权限置灰。
+
 ```vue
 <template>
   <StatusSwitch
     v-model="row.status"
-    permission="application-authorization:status-update"
+    v-permission="'application-authorization:status_update'"
     :options="statusOptions"
     :api-method="({ nextValue }) => ApplicationAuthorizationApi.updateStatus(row.id, String(nextValue))"
   />
@@ -281,8 +283,7 @@ const form = reactive({
 | activeValue | 激活值 | `string \| number \| boolean` | `'ACTIVE'` |
 | inactiveValue | 非激活值 | `string \| number \| boolean` | `'INACTIVE'` |
 | options | 状态值与文案映射 | `{ label: string; value: string \| number \| boolean }[]` | `[]` |
-| permission | 页面元素权限编码（可选） | `string` | - |
-| disabled | 是否禁用 | `boolean` | `false` |
+| disabled | 是否禁用（与 v-permission 置灰叠加；loading 时也会禁用） | `boolean` | `false` |
 | inlinePrompt | 是否显示开关文案 | `boolean` | `true` |
 | successMessage | 成功提示文案 | `string` | `'更新成功'` |
 | errorMessage | 失败提示文案 | `string` | `'更新失败'` |
