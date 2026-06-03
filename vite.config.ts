@@ -77,7 +77,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
       // Qiankun 插件配置（必须在 vue() 之后）
-      qiankun(env.VITE_APPLICATION_CODE || 'g2rain-app', {
+      qiankun(env.VITE_APPLICATION_CODE || 'g2rain-department-app', {
         useDevMode: true, // 开发环境启用
       }),
       envConfigPlugin(), // 生成运行时环境配置文件
