@@ -1,17 +1,17 @@
 <template>
   <div class="department-member-picker">
     <el-form :model="queryForm" :inline="true" class="department-member-picker__search">
-      <el-form-item label="用户">
+      <el-form-item :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_USER', '用户')">
         <UserSelect
           v-model="queryForm.userId"
           :organ-id="organId"
-          placeholder="请输入姓名/手机号搜索"
+          :placeholder="$t('DE_DEPARTMENT_USER_RELATION_PH_USER', '请输入姓名/手机号搜索')"
           width="220px"
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
+        <el-button @click="handleReset">{{ $t('G2_BTN_RESET', '重置') }}</el-button>
       </el-form-item>
     </el-form>
 
@@ -25,9 +25,9 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="48" :selectable="isRowSelectable" />
-      <el-table-column prop="userId" label="用户标识" width="120" />
-      <el-table-column prop="realName" label="姓名" min-width="140" show-overflow-tooltip />
-      <el-table-column prop="mobile" label="手机号" width="160" />
+      <el-table-column prop="userId" :label="$t('DE_USER_COL_ID', '用户标识')" width="120" />
+      <el-table-column prop="realName" :label="$t('G2_FIELD_REAL_NAME', '姓名')" min-width="140" show-overflow-tooltip />
+      <el-table-column prop="mobile" :label="$t('G2_FIELD_MOBILE', '手机号')" width="160" />
     </el-table>
 
     <div class="department-member-picker__pagination">
@@ -47,6 +47,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed, nextTick } from 'vue';
 import type { TableInstance } from 'element-plus';
+import { t } from '@platform/i18n';
 import { DepartmentUserRelationApi } from './api';
 import type { DepartmentUserRelation, DepartmentUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
@@ -128,7 +129,7 @@ const loadData = async () => {
     pagination.total = pageData.total;
     syncTableSelection();
   } catch (error: any) {
-    showErrorMessage(error || '加载部门成员失败');
+    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_MEMBERS_FAIL', '加载部门成员失败'));
   }
 };
 

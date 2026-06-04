@@ -4,7 +4,7 @@
     :fetch-data="fetchData"
     :value-key="valueKey"
     :label-key="labelKey"
-    :placeholder="placeholder"
+    :placeholder="resolvedPlaceholder"
     :clearable="clearable"
     :disabled="resolvedDisabled"
     :width="width"
@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { t } from '@platform/i18n';
 import { RemoteSelect } from './index';
 import { UserApi } from '@/views/user/api';
 import type { FetchDataFunction, RemoteSelectOption } from './types';
@@ -41,7 +42,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   valueKey: 'userId',
   labelKey: 'userName',
-  placeholder: '请输入姓名搜索',
+  placeholder: undefined,
   clearable: true,
   disabled: false,
   width: '200px',
@@ -49,6 +50,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<Emits>();
+
+const resolvedPlaceholder = computed(() => props.placeholder ?? t('DE_PH_USER_SEARCH', '请输入姓名搜索'));
 
 const resolvedDisabled = computed(() => props.disabled || props.organId == null);
 
