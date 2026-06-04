@@ -36,7 +36,7 @@
       border
       style="width: 100%"
     >
-      <el-table-column prop="deptName" label="部门名称" width="180" />
+      <el-table-column prop="deptName" :label="$t('DEPARTMENT_LIST_DEPT_NAME', '部门名称')" width="180" />
       <el-table-column prop="id" label="部门标识" width="100" />
       <el-table-column prop="organName" label="所属机构" width="140"/>
       <el-table-column prop="deptPath" label="部门路径" width="160" />

@@ -42,10 +42,14 @@
         <template #default="{ row }">{{ resolveModelName(row.modelId) }}</template>
       </el-table-column>
       <el-table-column label="可读" width="80" align="center">
-        <template #default="{ row }">{{ row.read ? '是' : '否' }}</template>
+        <template #default="{ row }">
+          <DictText :value="row.read" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </template>
       </el-table-column>
       <el-table-column label="可写" width="80" align="center">
-        <template #default="{ row }">{{ row.write ? '是' : '否' }}</template>
+        <template #default="{ row }">
+          <DictText :value="row.write" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" width="180">
         <template #default="{ row }">
@@ -114,9 +118,19 @@
             width="100%"
           />
         </el-form-item>
-        <el-form-item label="权限">
-          <el-checkbox v-model="editForm.read">可读</el-checkbox>
-          <el-checkbox v-model="editForm.write">可写</el-checkbox>
+        <el-form-item label="可读">
+          <el-radio-group v-model="editForm.read">
+            <el-radio v-for="option in boolOptions" :key="`read-${String(option.value)}`" :value="option.value">
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="可写">
+          <el-radio-group v-model="editForm.write">
+            <el-radio v-for="option in boolOptions" :key="`write-${String(option.value)}`" :value="option.value">
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="editForm.remark" placeholder="请输入备注" />
@@ -136,8 +150,12 @@
         <el-descriptions-item label="所属机构">{{ currentRow?.organName }}</el-descriptions-item>
         <el-descriptions-item label="策略名称">{{ currentRow?.metaName }}</el-descriptions-item>
         <el-descriptions-item label="权限模型">{{ currentRow ? resolveModelName(currentRow.modelId) : '' }}</el-descriptions-item>
-        <el-descriptions-item label="可读">{{ currentRow?.read ? '是' : '否' }}</el-descriptions-item>
-        <el-descriptions-item label="可写">{{ currentRow?.write ? '是' : '否' }}</el-descriptions-item>
+        <el-descriptions-item label="可读">
+          <DictText :value="currentRow?.read" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </el-descriptions-item>
+        <el-descriptions-item label="可写">
+          <DictText :value="currentRow?.write" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </el-descriptions-item>
         <el-descriptions-item label="状态">
           <DictText :value="currentRow?.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" />
         </el-descriptions-item>
@@ -163,11 +181,13 @@ import { DataPermissionModelApi } from '../data_permission_model/api';
 import { OrganApi } from '../organ/api';
 import { DictItemApi } from '../dict/api';
 import { useCommonStatus } from '../shared/useCommonStatus';
+import { useBooleanFlag } from '../shared/useBooleanFlag';
 import type { DataPermissionMeta, DataPermissionMetaPayload, DataPermissionMetaQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
 import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, StatusSwitch, DictText, showErrorMessage } from '@/components';
 
 const { statusOptions, loadCommonStatusDict } = useCommonStatus();
+const { boolOptions, loadBooleanFlagDict } = useBooleanFlag();
 
 const modelOptions = ref<Array<{ label: string; value: number }>>([]);
 
@@ -353,7 +373,7 @@ const submitEdit = async () => {
 };
 
 onMounted(async () => {
-  await loadCommonStatusDict();
+  await Promise.all([loadCommonStatusDict(), loadBooleanFlagDict()]);
   loadModelOptions();
   loadData();
 });

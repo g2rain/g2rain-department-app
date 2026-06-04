@@ -50,10 +50,14 @@
         <template #default="{ row }">{{ resolveMetaName(row.metaId) }}</template>
       </el-table-column>
       <el-table-column label="可读" width="80" align="center">
-        <template #default="{ row }">{{ row.read ? '是' : '否' }}</template>
+        <template #default="{ row }">
+          <DictText :value="row.read" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </template>
       </el-table-column>
       <el-table-column label="可写" width="80" align="center">
-        <template #default="{ row }">{{ row.write ? '是' : '否' }}</template>
+        <template #default="{ row }">
+          <DictText :value="row.write" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </template>
       </el-table-column>
       <el-table-column prop="status" label="状态" width="180">
         <template #default="{ row }">
@@ -123,9 +127,19 @@
             @change="handleEditMetaChange"
           />
         </el-form-item>
-        <el-form-item label="权限">
-          <el-checkbox v-model="editForm.read">可读</el-checkbox>
-          <el-checkbox v-model="editForm.write">可写</el-checkbox>
+        <el-form-item label="可读">
+          <el-radio-group v-model="editForm.read">
+            <el-radio v-for="option in boolOptions" :key="`read-${String(option.value)}`" :value="option.value">
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="可写">
+          <el-radio-group v-model="editForm.write">
+            <el-radio v-for="option in boolOptions" :key="`write-${String(option.value)}`" :value="option.value">
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="权限规则" prop="permissionRule">
           <div class="permission-rule-builder">
@@ -198,12 +212,14 @@ import type { DataPermissionField } from '../data_permission_field/type';
 import { OrganApi } from '../organ/api';
 import { DictItemApi } from '../dict/api';
 import { useCommonStatus } from '../shared/useCommonStatus';
+import { useBooleanFlag } from '../shared/useBooleanFlag';
 import type { DataPermissionOther, DataPermissionOtherPayload, DataPermissionOtherQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, DictText, StatusSwitch, showErrorMessage } from '@/components';
 import { buildPermissionRule, parsePermissionRule, validatePermissionRuleRows, type PermissionRuleRow } from './permissionRule.util';
 
 const { statusOptions, loadCommonStatusDict } = useCommonStatus();
+const { boolOptions, loadBooleanFlagDict } = useBooleanFlag();
 
 const props = defineProps<{ groupId?: number; organId?: number }>();
 
@@ -558,7 +574,7 @@ watch(
 );
 
 onMounted(() => {
-  loadCommonStatusDict();
+  void Promise.all([loadCommonStatusDict(), loadBooleanFlagDict()]);
 });
 </script>
 
