@@ -11,6 +11,9 @@ export interface DataPermissionGroupUserRelation extends BaseVo {
   organId: number;
   groupId: number;
   userId: number;
+  /** 列表展示用，由前端按 userId 调用户接口补齐 */
+  realName?: string;
+  mobile?: string;
   status: string;
 }
 
@@ -22,7 +25,6 @@ export interface DataPermissionGroupUserRelationPayload {
   organId?: number;
   groupId?: number;
   userId?: number;
-  status?: string;
 }
 
 /**
@@ -31,10 +33,16 @@ export interface DataPermissionGroupUserRelationPayload {
  * 包含业务查询字段和基础查询字段（BaseSelectListDto）
  */
 export interface DataPermissionGroupUserRelationQuery extends BaseSelectListDto {
-  // 业务查询字段
   organId?: number;
   groupId?: number;
   userId?: number;
   status?: string;
+}
+
+/** 批量添加小组用户 */
+export interface GroupAssignUsersPayload {
+  organId: number;
+  groupId: number;
+  userIds: number[];
 }
 

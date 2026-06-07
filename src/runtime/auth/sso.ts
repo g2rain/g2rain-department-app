@@ -267,8 +267,7 @@ class SSOService {
         'Content-Type': 'application/json',
         DPoP: headerDPoP,
         // 如果启用了 mock，添加 mock header
-        // 'x-g2rain-mock': isMockEnabled() ? 'true' : 'false',
-        'x-g2rain-mock': 'true',
+        'x-g2rain-mock': isMockEnabled() ? 'true' : 'false',
       },
     });
 

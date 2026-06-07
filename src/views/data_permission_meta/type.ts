@@ -9,8 +9,14 @@ import type { BaseSelectListDto, BaseVo } from '@platform/types/api.type';
  */
 export interface DataPermissionMeta extends BaseVo {
   organId: number;
+  /** 网关根据 organId 补全 */
+  organName?: string;
+  metaName: string;
   modelId: number;
-  permissionMode: number;
+  /** 是否可读（permissionMode bit1） */
+  read: boolean;
+  /** 是否可写（permissionMode bit0） */
+  write: boolean;
   status: string;
   remark: string;
 }
@@ -19,25 +25,21 @@ export interface DataPermissionMeta extends BaseVo {
  * 用于创建 / 更新时提交的负载（不包含审计字段）
  */
 export interface DataPermissionMetaPayload {
-  id?: number; // 更新时传入 ID，新增时不传
+  id?: number;
   organId?: number;
+  metaName?: string;
   modelId?: number;
-  permissionMode?: number;
-  status?: string;
+  read?: boolean;
+  write?: boolean;
   remark?: string;
 }
 
 /**
  * 数据权限元数据表查询条件
- * 用于分页查询时的业务查询参数
- * 包含业务查询字段和基础查询字段（BaseSelectListDto）
  */
 export interface DataPermissionMetaQuery extends BaseSelectListDto {
-  // 业务查询字段
   organId?: number;
   modelId?: number;
-  permissionMode?: number;
   status?: string;
   remark?: string;
 }
-

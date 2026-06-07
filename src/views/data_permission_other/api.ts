@@ -64,5 +64,10 @@ export class DataPermissionOtherApi {
     const http = getHttpClient('default');
     await http.delete(`/department/data_permission_other/${id}`);
   }
+
+  static async updateStatus(id: number, status: string): Promise<void> {
+    const http = getHttpClient('default');
+    await http.post(`/department/data_permission_other/${id}/status`, { status });
+  }
 }
 

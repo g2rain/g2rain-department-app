@@ -22,6 +22,40 @@ export class DataPermissionModelApi {
     return res.data || [];
   }
 
+  static formatModelLabel(model: DataPermissionModel): string {
+    return model.modelName || `${model.moduleCode}.${model.id}`;
+  }
+
+  /** 权限策略等场景：远程下拉 */
+  static async searchForSelect(params: { key?: string; value?: number }): Promise<{ id: number; name: string }[]> {
+    const toOption = (model: DataPermissionModel) => ({
+      id: model.id,
+      name: DataPermissionModelApi.formatModelLabel(model),
+    });
+
+    if (params.value != null) {
+      const models = await DataPermissionModelApi.list({ id: params.value });
+      return models.map(toOption);
+    }
+
+    const keyword = params.key?.trim().toLowerCase();
+    const models = await DataPermissionModelApi.list();
+    if (!keyword) {
+      return models.map(toOption);
+    }
+
+    return models
+      .filter(
+        model =>
+          DataPermissionModelApi.formatModelLabel(model).toLowerCase().includes(keyword) ||
+          model.modelName?.toLowerCase().includes(keyword) ||
+          model.moduleCode?.toLowerCase().includes(keyword) ||
+          model.tableName?.toLowerCase().includes(keyword) ||
+          String(model.id).includes(keyword),
+      )
+      .map(toOption);
+  }
+
   /**
    * 分页查询数据权限模型全局元数据表列表
    * @param params 查询参数（继承PageSelectListDto，包含基础查询和业务查询条件）

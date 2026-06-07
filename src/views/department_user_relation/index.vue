@@ -3,40 +3,46 @@
   <div class="department_user_relation-page">
     <el-card class="department_user_relation-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item v-if="!embedded" label="机构ID">
-          <el-input v-model="queryForm.organId" placeholder="请输入机构ID" clearable style="width: 200px" />
+        <el-form-item v-if="!embedded" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_ORGAN_ID', '机构ID')">
+          <el-input v-model="queryForm.organId" :placeholder="$t('DE_DEPARTMENT_USER_RELATION_PH_ORGAN_ID', '请输入机构ID')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item v-if="!embedded" label="部门ID">
-          <el-input v-model="queryForm.departmentId" placeholder="请输入部门ID" clearable style="width: 200px" />
+        <el-form-item v-if="!embedded" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_DEPARTMENT_ID', '部门ID')">
+          <el-input v-model="queryForm.departmentId" :placeholder="$t('DE_DEPARTMENT_USER_RELATION_PH_DEPARTMENT_ID', '请输入部门ID')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item label="用户ID">
-          <el-input v-model="queryForm.userId" placeholder="请输入用户ID" clearable style="width: 200px" />
+        <el-form-item :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_USER', '用户')">
+          <UserSelect
+            v-model="queryForm.userId"
+            :organ-id="effectiveOrganId"
+            :placeholder="$t('DE_DEPARTMENT_USER_RELATION_PH_USER', '请输入姓名/手机号搜索')"
+            width="200px"
+          />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
+          <el-button @click="handleReset">{{ $t('G2_BTN_RESET', '重置') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <div class="department_user_relation-page__header">
       <div class="department_user_relation-page__title-group">
-        <h2>管理部门用户</h2>
+        <h2>{{ $t('DE_DEPARTMENT_USER_RELATION_TITLE', '管理部门用户') }}</h2>
       </div>
-      <el-button type="primary" v-permission="'department_user_relation:add'" @click="handleCreate">新增关联用户</el-button>
+      <el-button type="primary" v-permission="'department_user_relation:add'" @click="handleCreate">{{ $t('DE_DEPARTMENT_USER_RELATION_BTN_ADD', '关联用户') }}</el-button>
     </div>
 
     <el-table :data="tableData" border stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="120" />
-      <el-table-column v-if="!embedded" prop="organId" label="机构ID" width="140" />
-      <el-table-column v-if="!embedded" prop="departmentId" label="部门ID" width="140" />
-      <el-table-column prop="userId" label="用户ID" width="140" />
-      <el-table-column prop="createTime" label="创建时间" width="180" />
-      <el-table-column prop="updateTime" label="更新时间" width="180" />
-      <el-table-column label="操作" fixed="right" width="140">
+      <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
+      <el-table-column v-if="!embedded" prop="organId" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_ORGAN_ID', '机构ID')" width="140" />
+      <el-table-column v-if="!embedded" prop="departmentId" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_DEPARTMENT_ID', '部门ID')" width="140" />
+      <el-table-column prop="userId" :label="$t('DE_DEPARTMENT_USER_RELATION_COL_USER_ID', '用户ID')" width="120" />
+      <el-table-column prop="realName" :label="$t('G2_FIELD_REAL_NAME', '姓名')" min-width="120" show-overflow-tooltip />
+      <el-table-column prop="mobile" :label="$t('G2_FIELD_MOBILE', '手机号')" width="140" />
+      <el-table-column prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" />
+      <el-table-column prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" />
+      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="80">
         <template #default="{ row }">
-          <el-button type="primary" link size="small" v-permission="'department_user_relation:edit'" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="danger" link size="small" v-permission="'department_user_relation:delete'" @click="handleDelete(row)">删除</el-button>
+          <el-button type="danger" link size="small" v-permission="'department_user_relation:delete'" @click="handleDelete(row)">{{ $t('G2_BTN_DELETE', '删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -53,22 +59,17 @@
       />
     </div>
 
-    <el-dialog v-model="editDialogVisible" :title="isEdit ? '编辑部门用户' : '新增部门用户'" width="520px">
-      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
-        <el-form-item v-if="!embedded" label="机构ID" prop="organId">
-          <el-input v-model="editForm.organId" placeholder="请输入机构ID" />
-        </el-form-item>
-        <el-form-item v-if="!embedded" label="部门ID" prop="departmentId">
-          <el-input v-model="editForm.departmentId" placeholder="请输入部门ID" />
-        </el-form-item>
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model="editForm.userId" placeholder="请输入用户ID" />
-        </el-form-item>
-      </el-form>
+    <el-dialog v-model="associateDialogVisible" :title="$t('DE_DEPARTMENT_USER_RELATION_DLG_ADD', '关联用户')" width="900px" destroy-on-close>
+      <UserPicker
+        ref="userPickerRef"
+        embedded
+        :organ-id="effectiveOrganId"
+        :exclude-user-ids="linkedUserIds"
+      />
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="submitEdit">保 存</el-button>
+          <el-button @click="associateDialogVisible = false">{{ $t('G2_BTN_CANCEL', '取消') }}</el-button>
+          <el-button type="primary" :loading="associateSaving" @click="submitAssociate">{{ $t('G2_BTN_SAVE', '保存') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -76,13 +77,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
+import { ref, reactive, watch, computed, nextTick } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { t } from '@platform/i18n';
 import { DepartmentUserRelationApi } from './api';
-import type { DepartmentUserRelation, DepartmentUserRelationPayload, DepartmentUserRelationQuery } from './type';
+import type { DepartmentUserRelation, DepartmentUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { showErrorMessage } from '@/components';
+import { UserSelect, showErrorMessage } from '@/components';
+import UserPicker from '../user/index.vue';
+import { UserApi } from '../user/api';
 
 const props = defineProps<{ departmentId?: number; organId?: number }>();
 
@@ -94,6 +97,9 @@ const queryForm = reactive({
   userId: undefined as number | undefined,
 });
 
+const effectiveOrganId = computed(() => props.organId ?? queryForm.organId);
+const effectiveDepartmentId = computed(() => props.departmentId ?? queryForm.departmentId);
+
 const pagination = reactive({
   pageNum: 1,
   pageSize: 10,
@@ -102,11 +108,26 @@ const pagination = reactive({
 
 const tableData = ref<DepartmentUserRelation[]>([]);
 
+const enrichUserFields = async (records: DepartmentUserRelation[]) => {
+  const userIds = [...new Set(records.map(row => row.userId).filter(id => id != null))];
+  if (userIds.length === 0) {
+    return;
+  }
+
+  const users = await UserApi.listByIds(userIds, effectiveOrganId.value);
+  const userMap = new Map(users.map(user => [user.id, user]));
+  for (const row of records) {
+    const user = userMap.get(row.userId);
+    row.realName = user?.realName ?? '';
+    row.mobile = user?.mobile ?? '';
+  }
+};
+
 const loadData = async () => {
   try {
     const query = Object.fromEntries(
       Object.entries({ ...queryForm })
-        .filter(([_, v]) => (v ?? '') !== '' && [v].flat().length)
+        .filter(([_, v]) => v != null && !Number.isNaN(v))
     ) as DepartmentUserRelationQuery;
 
     const pageData = await DepartmentUserRelationApi.page({
@@ -115,10 +136,16 @@ const loadData = async () => {
       ...query,
     } as PageSelectListDto & DepartmentUserRelationQuery);
 
-    tableData.value = pageData.records;
+    const records = pageData.records ?? [];
+    try {
+      await enrichUserFields(records);
+    } catch (error: any) {
+      showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_USER_FAIL', '加载用户信息失败'));
+    }
+    tableData.value = records;
     pagination.total = pageData.total;
   } catch (error: any) {
-    showErrorMessage(error || '加载列表失败');
+    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
   }
 };
 
@@ -147,7 +174,11 @@ const handlePageChange = (page: number) => {
 };
 
 const handleDelete = (row: DepartmentUserRelation) => {
-  ElMessageBox.confirm(`确认删除部门用户关联「${row.id}」吗？`, '提示', { type: 'warning' })
+  ElMessageBox.confirm(
+    t('DE_DEPARTMENT_USER_RELATION_DEL_CONFIRM', `确认删除部门用户关联「${row.id}」吗？`),
+    t('G2_LBL_TIP', '提示'),
+    { type: 'warning' },
+  )
     .then(async () => {
       try {
         await DepartmentUserRelationApi.remove(row.id);
@@ -155,80 +186,65 @@ const handleDelete = (row: DepartmentUserRelation) => {
           pagination.pageNum--;
         }
         await loadData();
-        ElMessage.success('删除成功');
+        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
       } catch (error: any) {
-        showErrorMessage(error || '删除失败');
+        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
       }
     })
     .catch(() => {});
 };
 
-const editDialogVisible = ref(false);
-const isEdit = ref(false);
-const editFormRef = ref<FormInstance | null>(null);
+const associateDialogVisible = ref(false);
+const associateSaving = ref(false);
+const userPickerRef = ref<InstanceType<typeof UserPicker>>();
+const linkedUserIds = ref<number[]>([]);
 
-const editForm = reactive({
-  id: undefined as number | undefined,
-  organId: props.organId as number | undefined,
-  departmentId: props.departmentId as number | undefined,
-  userId: undefined as number | undefined,
-});
-
-const editRules: FormRules = {
-  organId: [{ required: true, message: '请输入机构标识', trigger: 'blur' }],
-  departmentId: [{ required: true, message: '请输入部门标识', trigger: 'blur' }],
-  userId: [{ required: true, message: '请输入用户标识', trigger: 'blur' }],
-};
-
-const handleCreate = () => {
-  isEdit.value = false;
-  editFormRef.value?.clearValidate();
-  editForm.organId = props.organId;
-  editForm.departmentId = props.departmentId;
-  editForm.userId = undefined;
-  editDialogVisible.value = true;
-};
-
-const handleEdit = (row: DepartmentUserRelation) => {
-  isEdit.value = true;
-  editFormRef.value?.clearValidate();
-  editForm.id = row.id;
-  editForm.organId = row.organId;
-  editForm.departmentId = row.departmentId;
-  editForm.userId = row.userId;
-  editDialogVisible.value = true;
-};
-
-const submitEdit = async () => {
-  if (!editFormRef.value) return;
-  const valid = await editFormRef.value.validate();
-  if (!valid) return;
-
-  if (!editForm.organId) {
-    ElMessage.error('请设置机构');
+const handleCreate = async () => {
+  if (effectiveOrganId.value == null || effectiveDepartmentId.value == null) {
+    ElMessage.error(t('DE_DEPARTMENT_USER_RELATION_MSG_SET_ORGAN_DEPT', '请先设置机构和部门'));
     return;
   }
-  if (!editForm.departmentId) {
-    ElMessage.error('请设置部门');
-    return;
-  }
-
-  const payload: DepartmentUserRelationPayload = {
-    organId: editForm.organId,
-    departmentId: editForm.departmentId,
-    userId: editForm.userId,
-  };
 
   try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DepartmentUserRelationApi.save(payload);
-    ElMessage.success(isEdit.value ? '更新成功' : '新增成功');
-    await loadData();
-    editDialogVisible.value = false;
+    const relations = await DepartmentUserRelationApi.list({
+      organId: effectiveOrganId.value,
+      departmentId: effectiveDepartmentId.value,
+    });
+    linkedUserIds.value = relations.map(item => item.userId);
   } catch (error: any) {
-    showErrorMessage(error || '保存失败');
+    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_LINKED_FAIL', '加载已关联用户失败'));
+    return;
+  }
+
+  associateDialogVisible.value = true;
+  nextTick(() => userPickerRef.value?.clearSelection());
+};
+
+const submitAssociate = async () => {
+  const users = userPickerRef.value?.getSelectedUsers() ?? [];
+  if (users.length === 0) {
+    ElMessage.warning(t('DE_DEPARTMENT_USER_RELATION_MSG_SELECT_USER', '请至少选择一名用户'));
+    return;
+  }
+
+  associateSaving.value = true;
+  try {
+    const count = await DepartmentUserRelationApi.addUsers({
+      organId: effectiveOrganId.value!,
+      departmentId: effectiveDepartmentId.value!,
+      userIds: users.map(user => user.id),
+    });
+    if (count === 0) {
+      ElMessage.warning(t('DE_DEPARTMENT_USER_RELATION_MSG_ALL_LINKED', '所选用户均已关联，未新增记录'));
+    } else {
+      ElMessage.success(t('DE_DEPARTMENT_USER_RELATION_MSG_LINK_OK', `成功关联 ${count} 名用户`));
+    }
+    associateDialogVisible.value = false;
+    await loadData();
+  } catch (error: any) {
+    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LINK_FAIL', '关联失败'));
+  } finally {
+    associateSaving.value = false;
   }
 };
 

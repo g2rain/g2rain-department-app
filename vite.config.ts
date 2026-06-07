@@ -48,19 +48,23 @@ export default defineConfig(({ mode }) => {
         [`${base}keys/iam-public-key`]: {
           target: backendOrigin,
           changeOrigin: true,
+          secure: false,
         },
         [`${base}keys/iam-key-id`]: {
           target: backendOrigin,
           changeOrigin: true,
+          secure: false,
         },
         // 将 /sign_code 路径代理到后端服务器
         [`${base}lua/sign_code`]: {
           target: backendOrigin,
           changeOrigin: true,
+          secure: false,
         },
         [`${base}auth/`]: {
           target: backendOrigin,
           changeOrigin: true,
+          secure: false,
         },
         // 将 /api 路径代理到后端服务器
         [`${base}api/`]: {
@@ -73,7 +77,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
       // Qiankun 插件配置（必须在 vue() 之后）
-      qiankun(env.VITE_APPLICATION_CODE || 'g2rain-app', {
+      qiankun(env.VITE_APPLICATION_CODE || 'g2rain-department-app', {
         useDevMode: true, // 开发环境启用
       }),
       envConfigPlugin(), // 生成运行时环境配置文件

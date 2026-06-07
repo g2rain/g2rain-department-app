@@ -22,6 +22,43 @@ export class DataPermissionMetaApi {
     return res.data || [];
   }
 
+  static formatMetaLabel(meta: DataPermissionMeta): string {
+    return meta.metaName || `#${meta.id}`;
+  }
+
+  /** 规则配置等场景：按机构远程下拉 */
+  static async searchForSelect(
+    params: { key?: string; value?: number },
+    organId?: number | null,
+  ): Promise<{ id: number; name: string }[]> {
+    if (organId == null) {
+      return [];
+    }
+
+    const toOption = (meta: DataPermissionMeta) => ({
+      id: meta.id,
+      name: DataPermissionMetaApi.formatMetaLabel(meta),
+    });
+
+    if (params.value != null) {
+      const list = await DataPermissionMetaApi.list({ id: params.value, organId });
+      return list.map(toOption);
+    }
+
+    const list = await DataPermissionMetaApi.list({ organId, status: 'ACTIVE' });
+    const keyword = params.key?.trim().toLowerCase();
+    if (!keyword) {
+      return list.map(toOption);
+    }
+
+    return list
+      .filter(meta => {
+        const label = DataPermissionMetaApi.formatMetaLabel(meta).toLowerCase();
+        return label.includes(keyword) || String(meta.id).includes(keyword) || meta.metaName?.toLowerCase().includes(keyword);
+      })
+      .map(toOption);
+  }
+
   /**
    * 分页查询数据权限元数据表列表
    * @param params 查询参数（继承PageSelectListDto，包含基础查询和业务查询条件）
@@ -63,6 +100,11 @@ export class DataPermissionMetaApi {
   static async remove(id: number): Promise<void> {
     const http = getHttpClient('default');
     await http.delete(`/department/data_permission_meta/${id}`);
+  }
+
+  static async updateStatus(id: number, status: string): Promise<void> {
+    const http = getHttpClient('default');
+    await http.post(`/department/data_permission_meta/${id}/status`, { status });
   }
 }
 

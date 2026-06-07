@@ -4,7 +4,12 @@
  */
 
 import { getHttpClient } from '@/components/http';
-import type { DataPermissionGroupUserRelation, DataPermissionGroupUserRelationPayload, DataPermissionGroupUserRelationQuery } from './type';
+import type {
+  DataPermissionGroupUserRelation,
+  DataPermissionGroupUserRelationPayload,
+  DataPermissionGroupUserRelationQuery,
+  GroupAssignUsersPayload,
+} from './type';
 import type { PageData, PageSelectListDto } from '@platform/types/api.type';
 
 /**
@@ -63,6 +68,18 @@ export class DataPermissionGroupUserRelationApi {
   static async remove(id: number): Promise<void> {
     const http = getHttpClient('default');
     await http.delete(`/department/data_permission_group_user_relation/${id}`);
+  }
+
+  /** 批量添加小组用户（已存在的关联自动忽略） */
+  static async addUsers(payload: GroupAssignUsersPayload): Promise<number> {
+    const http = getHttpClient('default');
+    const res = await http.post<number>('/department/data_permission_group_user_relation/add_users', payload);
+    return res.data;
+  }
+
+  static async updateStatus(id: number, status: string): Promise<void> {
+    const http = getHttpClient('default');
+    await http.post(`/department/data_permission_group_user_relation/${id}/status`, { status });
   }
 }
 
