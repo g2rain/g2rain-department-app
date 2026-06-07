@@ -9,7 +9,11 @@ import type { BaseSelectListDto, BaseVo } from '@platform/types/api.type';
  */
 export interface DataPermissionGroup extends BaseVo {
   organId: number;
+  /** 网关根据 organId 补全 */
+  organName?: string;
   deptPath: string;
+  /** 列表展示：由部门查询接口按 deptPath 解析 */
+  deptName?: string;
   groupName: string;
   status: string;
 }
@@ -22,7 +26,6 @@ export interface DataPermissionGroupPayload {
   organId?: number;
   deptPath?: string;
   groupName?: string;
-  status?: string;
 }
 
 /**
@@ -31,9 +34,7 @@ export interface DataPermissionGroupPayload {
  * 包含业务查询字段和基础查询字段（BaseSelectListDto）
  */
 export interface DataPermissionGroupQuery extends BaseSelectListDto {
-  // 业务查询字段
   organId?: number;
-  deptPath?: string;
   groupName?: string;
   status?: string;
 }

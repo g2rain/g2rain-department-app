@@ -3,44 +3,54 @@
   <div class="data_permission_group_user_relation-page">
     <el-card class="data_permission_group_user_relation-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item v-if="!embedded" label="机构ID">
-          <el-input v-model="queryForm.organId" placeholder="请输入机构ID" clearable style="width: 200px" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_FIELD_USER', '用户')">
+          <UserSelect
+            v-model="queryForm.userId"
+            :organ-id="effectiveOrganId"
+            :placeholder="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_PH_USER', '请输入姓名/手机号搜索')"
+            width="200px"
+          />
         </el-form-item>
-        <el-form-item v-if="!embedded" label="分组ID">
-          <el-input v-model="queryForm.groupId" placeholder="请输入分组ID" clearable style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="用户ID">
-          <el-input v-model="queryForm.userId" placeholder="请输入用户ID" clearable style="width: 200px" />
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-input v-model="queryForm.status" placeholder="请输入状态" clearable style="width: 200px" />
+        <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
+          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_PH_STATUS', '请选择状态')" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
+          <el-button @click="handleReset">{{ $t('G2_BTN_RESET', '重置') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <div class="data_permission_group_user_relation-page__header">
       <div class="data_permission_group_user_relation-page__title-group">
-        <h2>管理关联用户</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_TITLE', '管理关联用户') }}</h2>
       </div>
-      <el-button type="primary" v-permission="'data_permission_group_user_relation:add'" @click="handleCreate">新增关联用户</el-button>
+      <el-button type="primary" v-permission="'data_permission_group_user_relation:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_BTN_ADD', '关联用户') }}</el-button>
     </div>
 
     <el-table :data="tableData" border stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="120" />
-      <el-table-column v-if="!embedded" prop="organId" label="机构ID" width="140" />
-      <el-table-column v-if="!embedded" prop="groupId" label="分组ID" width="140" />
-      <el-table-column prop="userId" label="用户ID" width="140" />
-      <el-table-column prop="status" label="状态" width="120" />
-      <el-table-column prop="createTime" label="创建时间" width="180" />
-      <el-table-column prop="updateTime" label="更新时间" width="180" />
-      <el-table-column label="操作" fixed="right" width="140">
+      <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
+      <el-table-column prop="userId" :label="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_FIELD_USER_ID', '用户ID')" width="120" />
+      <el-table-column prop="realName" :label="$t('G2_FIELD_REAL_NAME', '姓名')" min-width="120" show-overflow-tooltip />
+      <el-table-column prop="mobile" :label="$t('G2_FIELD_MOBILE', '手机号')" width="140" />
+      <el-table-column prop="status" :label="$t('G2_FIELD_STATUS', '状态')" width="180">
         <template #default="{ row }">
-          <el-button type="primary" link size="small" v-permission="'data_permission_group_user_relation:edit'" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="danger" link size="small" v-permission="'data_permission_group_user_relation:delete'" @click="handleDelete(row)">删除</el-button>
+          <StatusSwitch
+            v-model="row.status"
+            v-permission="'data_permission_group_user_relation:status_update'"
+            active-value="ACTIVE"
+            inactive-value="INACTIVE"
+            usage-code="COMMON_STATUS"
+            :api-method="({ nextValue }) => DataPermissionGroupUserRelationApi.updateStatus(row.id, String(nextValue))"
+            @success="loadData"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" />
+      <el-table-column prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" />
+      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="80">
+        <template #default="{ row }">
+          <el-button type="danger" link size="small" v-permission="'data_permission_group_user_relation:delete'" @click="handleDelete(row)">{{ $t('G2_BTN_DELETE', '删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -57,28 +67,17 @@
       />
     </div>
 
-    <el-dialog v-model="editDialogVisible" :title="isEdit ? '编辑关联用户' : '新增关联用户'" width="520px">
-      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
-        <el-form-item v-if="!embedded" label="机构ID" prop="organId">
-          <el-input v-model="editForm.organId" placeholder="请输入机构ID" />
-        </el-form-item>
-        <el-form-item v-if="!embedded" label="分组ID" prop="groupId">
-          <el-input v-model="editForm.groupId" placeholder="请输入分组ID" />
-        </el-form-item>
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model="editForm.userId" placeholder="请输入用户ID" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="editForm.status" placeholder="请选择状态" style="width: 200px">
-            <el-option label="有效" value="ACTIVE" />
-            <el-option label="停用" value="INACTIVE" />
-          </el-select>
-        </el-form-item>
-      </el-form>
+    <el-dialog v-model="associateDialogVisible" :title="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_DLG_ADD', '关联用户')" width="900px" destroy-on-close>
+      <DepartmentMemberPicker
+        ref="memberPickerRef"
+        :organ-id="effectiveOrganId"
+        :department-id="effectiveDepartmentId"
+        :exclude-user-ids="linkedUserIds"
+      />
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="submitEdit">保 存</el-button>
+          <el-button @click="associateDialogVisible = false">{{ $t('G2_BTN_CANCEL', '取消') }}</el-button>
+          <el-button type="primary" :loading="associateSaving" @click="submitAssociate">{{ $t('G2_BTN_SAVE', '保存') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -86,17 +85,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
+import { ref, reactive, watch, computed, nextTick } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { t } from '@platform/i18n';
 import { DataPermissionGroupUserRelationApi } from './api';
-import type { DataPermissionGroupUserRelation, DataPermissionGroupUserRelationPayload, DataPermissionGroupUserRelationQuery } from './type';
+import { DataPermissionGroupApi } from '../data_permission_group/api';
+import { DepartmentApi } from '../department/api';
+import { DictItemApi } from '../dict/api';
+import DepartmentMemberPicker from '../department_user_relation/picker.vue';
+import type { DataPermissionGroupUserRelation, DataPermissionGroupUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { showErrorMessage } from '@/components';
+import { UserSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+import { UserApi } from '../user/api';
 
-const props = defineProps<{ groupId?: number; organId?: number }>();
+const props = defineProps<{ groupId?: number; organId?: number; departmentId?: number }>();
 
-const embedded = computed(() => props.groupId != null);
+const resolvedDepartmentId = ref<number | undefined>(props.departmentId);
+
+const effectiveOrganId = computed(() => props.organId);
+const effectiveGroupId = computed(() => props.groupId);
+const effectiveDepartmentId = computed(() => resolvedDepartmentId.value);
 
 const queryForm = reactive({
   organId: props.organId as number | undefined,
@@ -113,11 +121,48 @@ const pagination = reactive({
 
 const tableData = ref<DataPermissionGroupUserRelation[]>([]);
 
+const resolveDepartmentId = async () => {
+  if (resolvedDepartmentId.value != null || props.groupId == null || props.organId == null) {
+    return;
+  }
+  try {
+    const group = await DataPermissionGroupApi.getById(props.groupId);
+    const depts = await DepartmentApi.list({ organId: props.organId, deptPath: group.deptPath });
+    resolvedDepartmentId.value = depts[0]?.id;
+  } catch (error: any) {
+    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_RESOLVE_DEPT', '解析所属部门失败'));
+  }
+};
+
+const enrichUserFields = async (records: DataPermissionGroupUserRelation[]) => {
+  const userIds = [...new Set(records.map(row => row.userId).filter(id => id != null))];
+  if (!userIds.length) {
+    return;
+  }
+  const users = await UserApi.listByIds(userIds, effectiveOrganId.value);
+  const userMap = new Map(users.map(user => [user.id, user]));
+  for (const row of records) {
+    const user = userMap.get(row.userId);
+    row.realName = user?.realName ?? '';
+    row.mobile = user?.mobile ?? '';
+  }
+};
+
 const loadData = async () => {
+  if (effectiveGroupId.value == null || effectiveOrganId.value == null) {
+    tableData.value = [];
+    pagination.total = 0;
+    return;
+  }
+
   try {
     const query = Object.fromEntries(
-      Object.entries({ ...queryForm })
-        .filter(([_, v]) => (v ?? '') !== '' && [v].flat().length)
+      Object.entries({
+        organId: effectiveOrganId.value,
+        groupId: effectiveGroupId.value,
+        userId: queryForm.userId,
+        status: queryForm.status,
+      }).filter(([_, v]) => v != null && (typeof v !== 'string' || v !== '')),
     ) as DataPermissionGroupUserRelationQuery;
 
     const pageData = await DataPermissionGroupUserRelationApi.page({
@@ -126,10 +171,16 @@ const loadData = async () => {
       ...query,
     } as PageSelectListDto & DataPermissionGroupUserRelationQuery);
 
-    tableData.value = pageData.records;
+    const records = pageData.records ?? [];
+    try {
+      await enrichUserFields(records);
+    } catch (error: any) {
+      showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LOAD_USER', '加载用户信息失败'));
+    }
+    tableData.value = records;
     pagination.total = pageData.total;
   } catch (error: any) {
-    showErrorMessage(error || '加载列表失败');
+    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
   }
 };
 
@@ -139,8 +190,6 @@ const handleSearch = () => {
 };
 
 const handleReset = () => {
-  queryForm.organId = props.organId;
-  queryForm.groupId = props.groupId;
   queryForm.userId = undefined;
   queryForm.status = '';
   pagination.pageNum = 1;
@@ -159,7 +208,11 @@ const handlePageChange = (page: number) => {
 };
 
 const handleDelete = (row: DataPermissionGroupUserRelation) => {
-  ElMessageBox.confirm(`确认删除关联用户「${row.id}」吗？`, '提示', { type: 'warning' })
+  ElMessageBox.confirm(
+    t('DE_DATA_PERMISSION_GROUP_USER_RELATION_DEL_CONFIRM', `确认删除关联用户「${row.realName || row.userId}」吗？`),
+    t('G2_LBL_TIP', '提示'),
+    { type: 'warning' },
+  )
     .then(async () => {
       try {
         await DataPermissionGroupUserRelationApi.remove(row.id);
@@ -167,92 +220,82 @@ const handleDelete = (row: DataPermissionGroupUserRelation) => {
           pagination.pageNum--;
         }
         await loadData();
-        ElMessage.success('删除成功');
+        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
       } catch (error: any) {
-        showErrorMessage(error || '删除失败');
+        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
       }
     })
     .catch(() => {});
 };
 
-const editDialogVisible = ref(false);
-const isEdit = ref(false);
-const editFormRef = ref<FormInstance | null>(null);
+const associateDialogVisible = ref(false);
+const associateSaving = ref(false);
+const memberPickerRef = ref<InstanceType<typeof DepartmentMemberPicker>>();
+const linkedUserIds = ref<number[]>([]);
 
-const editForm = reactive({
-  id: undefined as number | undefined,
-  organId: props.organId as number | undefined,
-  groupId: props.groupId as number | undefined,
-  userId: undefined as number | undefined,
-  status: 'ACTIVE',
-});
-
-const editRules: FormRules = {
-  organId: [{ required: true, message: '请输入机构标识', trigger: 'blur' }],
-  groupId: [{ required: true, message: '请输入分组标识', trigger: 'blur' }],
-  userId: [{ required: true, message: '请输入用户标识', trigger: 'blur' }],
-  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
-};
-
-const handleCreate = () => {
-  isEdit.value = false;
-  editFormRef.value?.clearValidate();
-  editForm.organId = props.organId;
-  editForm.groupId = props.groupId;
-  editForm.userId = undefined;
-  editForm.status = 'ACTIVE';
-  editDialogVisible.value = true;
-};
-
-const handleEdit = (row: DataPermissionGroupUserRelation) => {
-  isEdit.value = true;
-  editFormRef.value?.clearValidate();
-  editForm.id = row.id;
-  editForm.organId = row.organId;
-  editForm.groupId = row.groupId;
-  editForm.userId = row.userId;
-  editForm.status = row.status;
-  editDialogVisible.value = true;
-};
-
-const submitEdit = async () => {
-  if (!editFormRef.value) return;
-  const valid = await editFormRef.value.validate();
-  if (!valid) return;
-
-  if (!editForm.organId) {
-    ElMessage.error('请设置机构');
+const handleCreate = async () => {
+  if (effectiveOrganId.value == null || effectiveGroupId.value == null) {
+    ElMessage.error(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_MISSING_CTX', '缺少机构或小组信息'));
     return;
   }
-  if (!editForm.groupId) {
-    ElMessage.error('请设置分组');
+  if (effectiveDepartmentId.value == null) {
+    ElMessage.error(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_DEPT_UNKNOWN', '无法确定小组所属部门，请检查小组的部门路径配置'));
     return;
   }
-
-  const payload: DataPermissionGroupUserRelationPayload = {
-    organId: editForm.organId,
-    groupId: editForm.groupId,
-    userId: editForm.userId,
-    status: editForm.status,
-  };
 
   try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DataPermissionGroupUserRelationApi.save(payload);
-    ElMessage.success(isEdit.value ? '更新成功' : '新增成功');
-    await loadData();
-    editDialogVisible.value = false;
+    const relations = await DataPermissionGroupUserRelationApi.list({
+      organId: effectiveOrganId.value,
+      groupId: effectiveGroupId.value,
+    });
+    linkedUserIds.value = relations.map(item => item.userId);
   } catch (error: any) {
-    showErrorMessage(error || '保存失败');
+    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LOAD_LINKED', '加载已关联用户失败'));
+    return;
+  }
+
+  associateDialogVisible.value = true;
+  nextTick(() => memberPickerRef.value?.clearSelection());
+};
+
+const submitAssociate = async () => {
+  const users = memberPickerRef.value?.getSelectedUsers() ?? [];
+  if (users.length === 0) {
+    ElMessage.warning(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_WARN_SELECT_USER', '请至少选择一名部门成员'));
+    return;
+  }
+
+  associateSaving.value = true;
+  try {
+    const count = await DataPermissionGroupUserRelationApi.addUsers({
+      organId: effectiveOrganId.value!,
+      groupId: effectiveGroupId.value!,
+      userIds: users.map(user => user.id),
+    });
+    if (count === 0) {
+      ElMessage.warning(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_WARN_ALL_LINKED', '所选用户均已关联，未新增记录'));
+    } else {
+      ElMessage.success(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_MSG_LINK_OK', `成功关联 ${count} 名用户`));
+    }
+    associateDialogVisible.value = false;
+    await loadData();
+  } catch (error: any) {
+    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LINK_FAIL', '关联失败'));
+  } finally {
+    associateSaving.value = false;
   }
 };
 
 watch(
-  () => [props.groupId, props.organId],
-  () => handleReset(),
-  { immediate: true }
+  () => [props.groupId, props.organId, props.departmentId],
+  async () => {
+    queryForm.organId = props.organId;
+    queryForm.groupId = props.groupId;
+    resolvedDepartmentId.value = props.departmentId;
+    await resolveDepartmentId();
+    handleReset();
+  },
+  { immediate: true },
 );
 </script>
 

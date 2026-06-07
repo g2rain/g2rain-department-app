@@ -10,7 +10,8 @@ import type { BaseSelectListDto, BaseVo } from '@platform/types/api.type';
 export interface Department extends BaseVo {
   parentId: number;
   organId: number;
-  deptCode: string;
+  /** 网关根据 organId 补全 */
+  organName?: string;
   deptPath: string;
   deptName: string;
   leaderUserId: number;
@@ -19,18 +20,15 @@ export interface Department extends BaseVo {
 }
 
 /**
- * 用于创建 / 更新时提交的负载（不包含审计字段）
+ * 保存部门入参，与后端 DepartmentDto 对齐
  */
 export interface DepartmentPayload {
-  id?: number; // 更新时传入 ID，新增时不传
+  id?: number;
   parentId?: number;
-  organId?: number;
-  deptCode?: string;
-  deptPath?: string;
-  deptName?: string;
+  organId: number;
+  deptName: string;
   leaderUserId?: number;
-  status?: string;
-  sortOrder?: number;
+  sortOrder: number;
 }
 
 /**
@@ -42,7 +40,6 @@ export interface DepartmentQuery extends BaseSelectListDto {
   // 业务查询字段
   parentId?: number;
   organId?: number;
-  deptCode?: string;
   deptPath?: string;
   deptName?: string;
   leaderUserId?: number;

@@ -4,7 +4,7 @@
  */
 
 import { getHttpClient } from '@/components/http';
-import type { DepartmentUserRelation, DepartmentUserRelationPayload, DepartmentUserRelationQuery } from './type';
+import type { DepartmentUserRelation, DepartmentUserRelationPayload, DepartmentUserRelationQuery, DepartmentAssignUsersPayload } from './type';
 import type { PageData, PageSelectListDto } from '@platform/types/api.type';
 
 /**
@@ -53,6 +53,15 @@ export class DepartmentUserRelationApi {
   static async save(payload: DepartmentUserRelationPayload): Promise<DepartmentUserRelation> {
     const http = getHttpClient('default');
     const res = await http.post<DepartmentUserRelation>('/department/department_user_relation/save', payload);
+    return res.data;
+  }
+
+  /**
+   * 批量添加部门用户（已存在的关联自动忽略）
+   */
+  static async addUsers(payload: DepartmentAssignUsersPayload): Promise<number> {
+    const http = getHttpClient('default');
+    const res = await http.post<number>('/department/department_user_relation/add_users', payload);
     return res.data;
   }
 

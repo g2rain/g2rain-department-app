@@ -1,39 +1,38 @@
-
 <template>
   <div class="data_permission_field-page">
     <el-card class="data_permission_field-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item label="条件字段">
-          <el-input v-model="queryForm.fieldName" placeholder="请输入条件字段" clearable style="width: 200px" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_FIELD_FIELD_NAME', '条件字段')">
+          <el-input v-model="queryForm.fieldName" :placeholder="$t('DE_DATA_PERMISSION_FIELD_PH_FIELD_NAME', '请输入条件字段')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item label="条件名称">
-          <el-input v-model="queryForm.fieldTitle" placeholder="请输入条件名称" clearable style="width: 200px" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_FIELD_FIELD_TITLE', '条件名称')">
+          <el-input v-model="queryForm.fieldTitle" :placeholder="$t('DE_DATA_PERMISSION_FIELD_PH_FIELD_TITLE', '请输入条件名称')" clearable style="width: 200px" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
+          <el-button @click="handleReset">{{ $t('G2_BTN_RESET', '重置') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <div class="data_permission_field-page__header">
       <div class="data_permission_field-page__title-group">
-        <h2>管理条件字段</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_FIELD_TITLE', '管理条件字段') }}</h2>
       </div>
-      <el-button type="primary" v-permission="'data_permission_field:add'" @click="handleCreate">新增条件字段</el-button>
+      <el-button type="primary" v-permission="'data_permission_field:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_FIELD_BTN_ADD', '新增条件字段') }}</el-button>
     </div>
 
     <el-table :data="tableData" border stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="120" />
-      <el-table-column prop="fieldName" label="条件字段" width="180" />
-      <el-table-column prop="fieldTitle" label="条件名称" width="180" />
-      <el-table-column prop="sortOrder" label="排序" width="100" />
-      <el-table-column prop="createTime" label="创建时间" width="180" />
-      <el-table-column prop="updateTime" label="更新时间" width="180" />
-      <el-table-column label="操作" fixed="right" width="200">
+      <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
+      <el-table-column prop="fieldName" :label="$t('DE_DATA_PERMISSION_FIELD_FIELD_NAME', '条件字段')" width="180" />
+      <el-table-column prop="fieldTitle" :label="$t('DE_DATA_PERMISSION_FIELD_FIELD_TITLE', '条件名称')" width="180" />
+      <el-table-column prop="sortOrder" :label="$t('G2_LBL_SORT', '排序')" width="100" />
+      <el-table-column prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" />
+      <el-table-column prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" />
+      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="200">
         <template #default="{ row }">
-          <el-button type="primary" link size="small" v-permission="'data_permission_field:edit'" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="danger" link size="small" v-permission="'data_permission_field:delete'" @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" link size="small" v-permission="'data_permission_field:edit'" @click="handleEdit(row)">{{ $t('G2_BTN_EDIT', '编辑') }}</el-button>
+          <el-button type="danger" link size="small" v-permission="'data_permission_field:delete'" @click="handleDelete(row)">{{ $t('G2_BTN_DELETE', '删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -50,22 +49,22 @@
       />
     </div>
 
-    <el-dialog v-model="editDialogVisible" :title="isEdit ? '编辑条件字段' : '新增条件字段'" width="520px">
+    <el-dialog v-model="editDialogVisible" :title="editDialogTitle" width="520px">
       <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
-        <el-form-item label="条件字段" prop="fieldName">
-          <el-input v-model="editForm.fieldName" placeholder="请输入条件字段" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_FIELD_FIELD_NAME', '条件字段')" prop="fieldName">
+          <el-input v-model="editForm.fieldName" :placeholder="$t('DE_DATA_PERMISSION_FIELD_PH_FIELD_NAME', '请输入条件字段')" />
         </el-form-item>
-        <el-form-item label="条件名称" prop="fieldTitle">
-          <el-input v-model="editForm.fieldTitle" placeholder="请输入条件名称" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_FIELD_FIELD_TITLE', '条件名称')" prop="fieldTitle">
+          <el-input v-model="editForm.fieldTitle" :placeholder="$t('DE_DATA_PERMISSION_FIELD_PH_FIELD_TITLE', '请输入条件名称')" />
         </el-form-item>
-        <el-form-item label="排序" prop="sortOrder">
+        <el-form-item :label="$t('G2_LBL_SORT', '排序')" prop="sortOrder">
           <el-input-number v-model="editForm.sortOrder" :min="0" :step="1" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="submitEdit">保 存</el-button>
+          <el-button @click="editDialogVisible = false">{{ $t('G2_BTN_CANCEL', '取消') }}</el-button>
+          <el-button type="primary" @click="submitEdit">{{ $t('G2_BTN_SAVE', '保存') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -73,17 +72,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { t } from '@platform/i18n';
 import { DataPermissionFieldApi } from './api';
 import type { DataPermissionField, DataPermissionFieldPayload, DataPermissionFieldQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
 import { showErrorMessage } from '@/components';
 
 const props = defineProps<{ modelId?: number }>();
-
-const embedded = computed(() => props.modelId != null);
 
 const queryForm = reactive({
   modelId: props.modelId,
@@ -115,7 +113,7 @@ const loadData = async () => {
     tableData.value = pageData.records;
     pagination.total = pageData.total;
   } catch (error: any) {
-    showErrorMessage(error || '加载列表失败');
+    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
   }
 };
 
@@ -144,7 +142,11 @@ const handlePageChange = (page: number) => {
 };
 
 const handleDelete = (row: DataPermissionField) => {
-  ElMessageBox.confirm(`确认删除条件字段「${row.id}」吗？`, '提示', { type: 'warning' })
+  ElMessageBox.confirm(
+    t('DE_DATA_PERMISSION_FIELD_DEL_CONFIRM', `确认删除条件字段「${row.id}」吗？`),
+    t('G2_LBL_TIP', '提示'),
+    { type: 'warning' },
+  )
     .then(async () => {
       try {
         await DataPermissionFieldApi.remove(row.id);
@@ -152,9 +154,9 @@ const handleDelete = (row: DataPermissionField) => {
           pagination.pageNum--;
         }
         await loadData();
-        ElMessage.success('删除成功');
+        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
       } catch (error: any) {
-        showErrorMessage(error || '删除失败');
+        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
       }
     })
     .catch(() => {});
@@ -172,11 +174,17 @@ const editForm = reactive({
   sortOrder: 0,
 });
 
-const editRules: FormRules = {
-  fieldName: [{ required: true, message: '请输入条件字段', trigger: 'blur' }],
-  fieldTitle: [{ required: true, message: '请输入条件名称', trigger: 'blur' }],
-  sortOrder: [{ required: true, message: '请输入排序', trigger: 'blur' }],
-};
+const editDialogTitle = computed(() =>
+  isEdit.value
+    ? t('DE_DATA_PERMISSION_FIELD_DLG_EDIT', '编辑条件字段')
+    : t('DE_DATA_PERMISSION_FIELD_DLG_ADD', '新增条件字段'),
+);
+
+const editRules = computed<FormRules>(() => ({
+  fieldName: [{ required: true, message: t('DE_DATA_PERMISSION_FIELD_PH_FIELD_NAME', '请输入条件字段'), trigger: 'blur' }],
+  fieldTitle: [{ required: true, message: t('DE_DATA_PERMISSION_FIELD_PH_FIELD_TITLE', '请输入条件名称'), trigger: 'blur' }],
+  sortOrder: [{ required: true, message: t('DE_DATA_PERMISSION_FIELD_PH_SORT_ORDER', '请输入排序'), trigger: 'blur' }],
+}));
 
 const handleCreate = () => {
   isEdit.value = false;
@@ -205,7 +213,7 @@ const submitEdit = async () => {
   if (!valid) return;
 
   if (!editForm.modelId) {
-    ElMessage.error('请设置权限模型');
+    ElMessage.error(t('DE_DATA_PERMISSION_FIELD_ERR_MODEL_REQUIRED', '请设置权限模型'));
     return;
   }
 
@@ -221,11 +229,11 @@ const submitEdit = async () => {
       payload.id = editForm.id;
     }
     await DataPermissionFieldApi.save(payload);
-    ElMessage.success(isEdit.value ? '更新成功' : '新增成功');
+    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
     await loadData();
     editDialogVisible.value = false;
   } catch (error: any) {
-    showErrorMessage(error || '保存失败');
+    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
   }
 };
 
