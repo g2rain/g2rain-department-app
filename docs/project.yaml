@@ -1,0 +1,114 @@
+schemaVersion: 1
+name: g2rain-department-app
+family: frontend-app
+role: G2rain 部门与数据权限管理微前端应用
+version: 0.1.0
+license: Apache-2.0
+
+architectureBaseline:
+  repository: https://github.com/g2rain/g2rain
+  ref: architecture-v1.1.0
+  profile: docs/architecture/profiles/frontend-app
+  version: 1.0.0
+  status: planned
+  releasedAt: "2026-08-25"
+  deviations: docs/architecture/deviations.md
+
+ownership:
+  owns:
+    - 部门与部门用户关系管理界面及交互用例
+    - 数据权限模型、字段、元数据、小组、成员和规则配置界面
+    - 本应用的路由、资源加载、权限呈现和微前端生命周期
+    - 本项目页面代码与资源配置生成工具
+  excludes:
+    - g2rain-department 的领域数据、持久化和服务端权限规则
+    - IAM 的认证、Token 签发与会话规则
+    - Gateway 的鉴权、路由与请求转发
+    - main-shell 的全局菜单、Tab 与子应用注册治理
+
+businessDomains:
+  - department-management
+  - department-user-membership
+  - data-permission-model
+  - data-permission-policy
+  - data-permission-group
+
+toolchain:
+  node: ">=22"
+  packageManager: npm
+  lockfileVersion: 3
+  framework: Vue 3.5.26
+  language: TypeScript 5.9.3
+  bundler: Vite 7.3
+  microFrontend: qiankun 2.10.16
+  ui: Element Plus 2.13
+  state: Pinia 3
+
+layers:
+  order: [shared, components, platform, runtime, views]
+  targetDependencyDirection: views -> runtime -> platform -> components -> shared
+  compositionRoots: [src/main.ts, src/App.vue]
+
+runtime:
+  applicationCode: g2rain-department-app
+  contextPath: /department
+  modes:
+    alone:
+      selector: mode=alone 或 VITE_RUN_MODE=alone
+      auth: 应用自行执行 IAM SSO、Token 管理和资源加载
+    integrated:
+      selector: 默认空模式
+      auth: main-shell 通过 qiankun props 注入 Token、Client、Locale、初始路由和 appKey
+  resourceEndpoint: /basis/authority/resources
+  backendRoutePrefix: /department
+  devServerPort: 3002
+  container:
+    exposedPort: 8080
+    defaultServerPort: 80
+
+commands:
+  install: npm ci --legacy-peer-deps
+  dev: npm run dev
+  verify: npm run build
+  preview: npm run preview
+  codegen: npm run build:generate -- --tables=<table>
+  resourceConfig: npm run build:config
+  image: docker build --build-arg VITE_BUILD_MODE=production -t g2rain/g2rain-department-app:<tag> .
+
+generators:
+  code:
+    input: src/shared/generator/database.sql
+    output: src/views/<table>
+    updatesRouteMap: true
+    overwritesExistingFiles: true
+    switches: [--no-view, --no-api, --no-mock, --no-route]
+  resource:
+    routeInput: src/views/route-map.ts
+    viewInput: src/views
+    output: src/shared/config-util/config
+    outputTracked: true
+    generated: [resources.json, pages.json, page-elements.json]
+    currentCounts: {pages: 8, pageElements: 26, apiEndpoints: 0}
+    apiEndpointGeneration: false
+
+collaborators:
+  - repository: g2rain/g2rain-main-shell
+    role: 统一入口、路由同步和 qiankun 装载
+  - repository: g2rain/g2rain-department
+    role: 部门与数据权限领域数据、规则和 API
+  - repository: g2rain/g2rain-basis
+    role: 应用资源、用户与机构辅助查询
+  - repository: g2rain/g2rain-iam
+    role: SSO、Token 和客户端认证
+  - repository: g2rain/g2rain-gateway-webflux
+    role: 后端 API 统一入口与鉴权转发
+
+validation:
+  reviewedAt: "2026-09-06"
+  command: npm run build
+  status: build-failed
+  testsRun: 0
+  failure: src/platform/i18n/index.ts:52 references undefined localeCode
+  notes:
+    - vue-tsc 阶段失败，Vite 构建未执行
+    - package.json 未配置 test 或 lint 脚本，未发现自动化测试套件
