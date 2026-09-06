@@ -3,30 +3,30 @@
   <div class="department-page">
     <el-card class="department-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item label="所属机构">
-          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" placeholder="请选择所属机构" width="200px" />
+        <el-form-item :label="$t('DE_FIELD_ORGAN', '所属机构')">
+          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('DE_PH_ORGAN', '请选择所属机构')" width="200px" />
         </el-form-item>
-        <el-form-item label="部门名称">
-          <el-input v-model="queryForm.deptName" placeholder="请输入部门名称" clearable style="width: 200px" />
+        <el-form-item :label="$t('DE_DEPARTMENT_FIELD_DEPT_NAME', '部门名称')">
+          <el-input v-model="queryForm.deptName" :placeholder="$t('DE_DEPARTMENT_PH_DEPT_NAME', '请输入部门名称')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item label="部门路径">
-          <el-input v-model="queryForm.deptPath" placeholder="请输入部门路径" clearable style="width: 200px" />
+        <el-form-item :label="$t('DE_DEPARTMENT_FIELD_DEPT_PATH', '部门路径')">
+          <el-input v-model="queryForm.deptPath" :placeholder="$t('DE_DEPARTMENT_PH_DEPT_PATH', '请输入部门路径')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item label="状态">
-          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" placeholder="请选择状态" />
+        <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
+          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('G2_PH_SELECT', '请选择')" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
+          <el-button @click="handleReset">{{ $t('G2_BTN_RESET', '重置') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <div class="department-page__header">
       <div class="department-page__title-group">
-        <h2>管理部门数据</h2>
+        <h2>{{ $t('DE_DEPARTMENT_TITLE', '管理部门数据') }}</h2>
       </div>
-      <el-button type="primary" v-permission="'department:add'" @click="handleCreate(undefined)">新增顶级部门</el-button>
+      <el-button type="primary" v-permission="'department:add'" @click="handleCreate(undefined)">{{ $t('DE_DEPARTMENT_BTN_ADD_ROOT', '新增顶级部门') }}</el-button>
     </div>
 
     <el-table
@@ -36,66 +36,66 @@
       border
       style="width: 100%"
     >
-      <el-table-column prop="deptName" label="部门名称" width="180" />
-      <el-table-column prop="id" label="部门标识" width="100" />
-      <el-table-column prop="organName" label="所属机构" width="140"/>
-      <el-table-column prop="deptPath" label="部门路径" width="160" />
-      <el-table-column prop="status" label="状态" width="180">
+      <el-table-column prop="deptName" :label="$t('DE_DEPARTMENT_FIELD_DEPT_NAME', '部门名称')" width="180" />
+      <el-table-column prop="id" :label="$t('DE_DEPARTMENT_COL_ID', '部门标识')" width="100" />
+      <el-table-column prop="organName" :label="$t('DE_FIELD_ORGAN', '所属机构')" width="140"/>
+      <el-table-column prop="deptPath" :label="$t('DE_DEPARTMENT_FIELD_DEPT_PATH', '部门路径')" width="160" />
+      <el-table-column prop="status" :label="$t('G2_FIELD_STATUS', '状态')" width="180">
         <template #default="{ row }">
           <StatusSwitch
             v-model="row.status"
-            permission="department:status_update"
+            v-permission="'department:status_update'"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
-            :options="statusOptions"
+            usage-code="COMMON_STATUS"
             :api-method="({ nextValue }) => DepartmentApi.updateStatus(row.id, String(nextValue))"
             @success="loadData"
           />
         </template>
       </el-table-column>
-      <el-table-column prop="sortOrder" label="排序" width="70" />
-      <el-table-column prop="createTime" label="创建时间" width="180" />
-      <el-table-column prop="updateTime" label="更新时间" width="180" />
-      <el-table-column label="操作" fixed="right" width="300">
+      <el-table-column prop="sortOrder" :label="$t('G2_LBL_SORT', '排序')" width="70" />
+      <el-table-column prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" />
+      <el-table-column prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" />
+      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="300">
         <template #default="{ row }">
-          <el-button link type="primary" v-permission="'department:edit'" @click="handleEdit(row)">编辑</el-button>
-          <el-button link type="success" v-permission="'department:add'" @click="handleCreate(row)">新增子部门</el-button>
-          <el-button link type="primary" v-permission="'department:relation_users'" @click="handleDepartmentUsers(row)">关联用户</el-button>
-          <el-button link type="danger" v-permission="'department:delete'" @click="handleDelete(row)">删除</el-button>
+          <el-button link type="primary" v-permission="'department:edit'" @click="handleEdit(row)">{{ $t('G2_BTN_EDIT', '编辑') }}</el-button>
+          <el-button link type="success" v-permission="'department:add'" @click="handleCreate(row)">{{ $t('DE_DEPARTMENT_BTN_ADD_CHILD', '新增子部门') }}</el-button>
+          <el-button link type="primary" v-permission="'department:relation_users'" @click="handleDepartmentUsers(row)">{{ $t('DE_DEPARTMENT_BTN_RELATION_USERS', '关联用户') }}</el-button>
+          <el-button link type="danger" v-permission="'department:delete'" @click="handleDelete(row)">{{ $t('G2_BTN_DELETE', '删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="editDialogVisible" :title="isEdit ? '编辑部门' : '新增部门'" width="520px">
+    <el-dialog v-model="editDialogVisible" :title="isEdit ? $t('DE_DEPARTMENT_DLG_EDIT', '编辑部门') : $t('DE_DEPARTMENT_DLG_ADD', '新增部门')" width="520px">
       <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="120px">
-        <el-form-item label="所属机构" prop="organId" v-if="showOrganSelect">
-          <OrganSelect v-model="editForm.organId" :api-method="OrganApi.searchOrgans" placeholder="请选择所属机构" width="200px" />
+        <el-form-item :label="$t('DE_FIELD_ORGAN', '所属机构')" prop="organId" v-if="showOrganSelect">
+          <OrganSelect v-model="editForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('DE_PH_ORGAN', '请选择所属机构')" width="200px" />
         </el-form-item>
-        <el-form-item label="部门名称" prop="deptName">
-          <el-input v-model="editForm.deptName" placeholder="请输入部门名称" />
+        <el-form-item :label="$t('DE_DEPARTMENT_FIELD_DEPT_NAME', '部门名称')" prop="deptName">
+          <el-input v-model="editForm.deptName" :placeholder="$t('DE_DEPARTMENT_PH_DEPT_NAME', '请输入部门名称')" />
         </el-form-item>
-        <el-form-item label="负责人" prop="leaderUserId">
+        <el-form-item :label="$t('DE_DEPARTMENT_FIELD_LEADER', '负责人')" prop="leaderUserId">
           <UserSelect
             :key="`leader-${editForm.organId ?? 'none'}`"
             v-model="editForm.leaderUserId"
             :organ-id="editForm.organId"
-            placeholder="请输入姓名搜索负责人"
+            :placeholder="$t('DE_DEPARTMENT_PH_LEADER', '请输入姓名搜索负责人')"
             width="100%"
           />
         </el-form-item>
-        <el-form-item label="部门排序" prop="sortOrder">
+        <el-form-item :label="$t('DE_DEPARTMENT_FIELD_SORT_ORDER', '部门排序')" prop="sortOrder">
           <el-input-number v-model="editForm.sortOrder" :min="0" :step="1" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="submitEdit">保 存</el-button>
+          <el-button @click="editDialogVisible = false">{{ $t('G2_BTN_CANCEL', '取消') }}</el-button>
+          <el-button type="primary" @click="submitEdit">{{ $t('G2_BTN_SAVE', '保存') }}</el-button>
         </span>
       </template>
     </el-dialog>
 
-    <el-dialog v-model="departmentUserDialogVisible" title="管理部门用户" width="1010px">
+    <el-dialog v-model="departmentUserDialogVisible" :title="$t('DE_DEPARTMENT_DLG_MANAGE_USERS', '管理部门用户')" width="1010px">
       <DepartmentUserRelationPage :department-id="selectedDepartmentId" :organ-id="selectedOrganId" />
     </el-dialog>
   </div>
@@ -105,15 +105,13 @@
 import { ref, computed, reactive, onMounted, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { t } from '@platform/i18n';
 import { DepartmentApi } from './api';
 import { OrganApi } from '../organ/api';
 import { DictItemApi } from '../dict/api';
-import { useCommonStatus } from '../shared/useCommonStatus';
 import DepartmentUserRelationPage from '../department_user_relation/index.vue';
 import type { Department, DepartmentPayload, DepartmentQuery } from './type';
 import { OrganSelect, UserSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
-
-const { statusOptions, loadCommonStatusDict } = useCommonStatus();
 
 type DepartmentTreeNode = Department & { children?: DepartmentTreeNode[] };
 
@@ -156,7 +154,7 @@ const loadData = async () => {
     ) as DepartmentQuery;
     tableData.value = await DepartmentApi.list(query);
   } catch (error: any) {
-    showErrorMessage(error || '加载列表失败');
+    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
   }
 };
 
@@ -173,14 +171,18 @@ const handleReset = () => {
 };
 
 const handleDelete = (row: Department) => {
-  ElMessageBox.confirm(`确认删除部门「${row.deptName}」吗？`, '提示', { type: 'warning' })
+  ElMessageBox.confirm(
+    t('DE_DEPARTMENT_DEL_CONFIRM', `确认删除部门「${row.deptName}」吗？`),
+    t('G2_LBL_TIP', '提示'),
+    { type: 'warning' },
+  )
     .then(async () => {
       try {
         await DepartmentApi.remove(row.id);
         await loadData();
-        ElMessage.success('删除成功');
+        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
       } catch (error: any) {
-        showErrorMessage(error || '删除失败');
+        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
       }
     })
     .catch(() => {});
@@ -200,11 +202,11 @@ const editForm = reactive({
   sortOrder: 0,
 });
 
-const editRules: FormRules = {
-  organId: [{ required: true, message: '请选择所属机构', trigger: 'change' }],
-  deptName: [{ required: true, message: '请输入部门名称', trigger: 'blur' }],
-  sortOrder: [{ required: true, message: '请输入部门排序', trigger: 'blur' }],
-};
+const editRules = computed<FormRules>(() => ({
+  organId: [{ required: true, message: t('DE_PH_ORGAN', '请选择所属机构'), trigger: 'change' }],
+  deptName: [{ required: true, message: t('DE_DEPARTMENT_PH_DEPT_NAME', '请输入部门名称'), trigger: 'blur' }],
+  sortOrder: [{ required: true, message: t('DE_DEPARTMENT_VLD_SORT_ORDER', '请输入部门排序'), trigger: 'blur' }],
+}));
 
 watch(
   () => editForm.organId,
@@ -263,11 +265,11 @@ const submitEdit = async () => {
       payload.id = editForm.id;
     }
     await DepartmentApi.save(payload);
-    ElMessage.success(isEdit.value ? '更新成功' : '新增成功');
+    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
     await loadData();
     editDialogVisible.value = false;
   } catch (error: any) {
-    showErrorMessage(error || '保存失败');
+    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
   }
 };
 
@@ -282,7 +284,6 @@ const handleDepartmentUsers = (row: Department) => {
 };
 
 onMounted(async () => {
-  await loadCommonStatusDict();
   await loadData();
 });
 </script>

@@ -3,81 +3,85 @@
   <div class="data_permission_other-page" :class="{ 'data_permission_other-page--embedded': embedded }">
     <el-card class="data_permission_other-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item v-if="!embedded" label="所属机构">
+        <el-form-item v-if="!embedded" :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_ORGAN', '所属机构')">
           <OrganSelect
             v-model="queryForm.organId"
             :api-method="OrganApi.searchOrgans"
-            placeholder="请选择所属机构"
+            :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_ORGAN', '请选择所属机构')"
             width="200px"
           />
         </el-form-item>
-        <el-form-item v-if="!embedded" label="权限小组">
-          <el-input v-model="queryForm.groupId" placeholder="请输入权限小组ID" clearable style="width: 200px" />
+        <el-form-item v-if="!embedded" :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_GROUP', '权限小组')">
+          <el-input v-model="queryForm.groupId" :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_GROUP_ID', '请输入权限小组ID')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item label="权限策略">
+        <el-form-item :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_META', '权限策略')">
           <ApiSelect
             :key="`query-meta-${effectiveOrganId ?? 'none'}`"
             v-model="queryForm.metaId"
             :api-method="metaSelectMethod"
             label-key="name"
-            placeholder="请选择权限策略"
+            :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_META', '请选择权限策略')"
             allow-empty-keyword
             prefetch-on-open
             :disabled="!embedded && effectiveOrganId == null"
             width="220px"
           />
         </el-form-item>
-        <el-form-item label="状态">
-          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" placeholder="请选择状态" />
+        <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
+          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_STATUS', '请选择状态')" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
+          <el-button @click="handleReset">{{ $t('G2_BTN_RESET', '重置') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <div class="data_permission_other-page__header">
       <div class="data_permission_other-page__title-group">
-        <h2>管理规则配置</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_OTHER_TITLE', '管理规则配置') }}</h2>
       </div>
-      <el-button type="primary" v-permission="'data_permission_other:add'" @click="handleCreate">新增规则配置</el-button>
+      <el-button type="primary" v-permission="'data_permission_other:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_OTHER_BTN_ADD', '新增规则配置') }}</el-button>
     </div>
 
     <SortableTable :data="tableData" border stripe style="width: 100%" :enable-multi-sort="true" @sort-change="handleSortChange">
-      <el-table-column prop="id" label="ID" width="120" />
-      <el-table-column label="权限策略" min-width="180" show-overflow-tooltip>
+      <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
+      <el-table-column :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_META', '权限策略')" min-width="180" show-overflow-tooltip>
         <template #default="{ row }">{{ resolveMetaName(row.metaId) }}</template>
       </el-table-column>
-      <el-table-column label="可读" width="80" align="center">
-        <template #default="{ row }">{{ row.read ? '是' : '否' }}</template>
+      <el-table-column :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_READ', '可读')" width="80" align="center">
+        <template #default="{ row }">
+          <DictText :value="row.read" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </template>
       </el-table-column>
-      <el-table-column label="可写" width="80" align="center">
-        <template #default="{ row }">{{ row.write ? '是' : '否' }}</template>
+      <el-table-column :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_WRITE', '可写')" width="80" align="center">
+        <template #default="{ row }">
+          <DictText :value="row.write" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
+        </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" width="180">
+      <el-table-column prop="status" :label="$t('G2_FIELD_STATUS', '状态')" width="180">
         <template #default="{ row }">
           <StatusSwitch
             v-model="row.status"
-            permission="data_permission_other:status_update"
+            v-permission="'data_permission_other:status_update'"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
-            :options="statusOptions"
+            usage-code="COMMON_STATUS"
             :api-method="({ nextValue }) => DataPermissionOtherApi.updateStatus(row.id, String(nextValue))"
             @success="loadData"
           />
         </template>
       </el-table-column>
-      <TableColumn prop="createTime" label="创建时间" width="180" :sortable="true" />
-      <TableColumn prop="updateTime" label="更新时间" width="180" :sortable="true" />
-      <el-table-column label="操作" fixed="right" width="160">
+      <TableColumn prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" :sortable="true" />
+      <TableColumn prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" :sortable="true" />
+      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="160">
         <template #default="{ row }">
-          <el-button type="primary" v-permission="'data_permission_other:edit'" link size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="danger" v-permission="'data_permission_other:delete'" link size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" v-permission="'data_permission_other:edit'" link size="small" @click="handleEdit(row)">{{ $t('G2_BTN_EDIT', '编辑') }}</el-button>
+          <el-button type="danger" v-permission="'data_permission_other:delete'" link size="small" @click="handleDelete(row)">{{ $t('G2_BTN_DELETE', '删除') }}</el-button>
         </template>
         <template #header>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span>操作</span>
+            <span>{{ $t('G2_FIELD_ACTION', '操作') }}</span>
             <SortManagerButton />
           </div>
         </template>
@@ -96,26 +100,26 @@
       />
     </div>
 
-    <el-dialog v-model="editDialogVisible" :title="isEdit ? '编辑规则配置' : '新增规则配置'" width="680px">
+    <el-dialog v-model="editDialogVisible" :title="isEdit ? $t('DE_DATA_PERMISSION_OTHER_DLG_EDIT', '编辑规则配置') : $t('DE_DATA_PERMISSION_OTHER_DLG_ADD', '新增规则配置')" width="680px">
       <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
-        <el-form-item v-if="!embedded" label="所属机构" prop="organId">
+        <el-form-item v-if="!embedded" :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_ORGAN', '所属机构')" prop="organId">
           <OrganSelect
             v-model="editForm.organId"
             :api-method="OrganApi.searchOrgans"
-            placeholder="请选择所属机构"
+            :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_ORGAN', '请选择所属机构')"
             width="100%"
           />
         </el-form-item>
-        <el-form-item v-if="!embedded" label="权限小组" prop="groupId">
-          <el-input v-model="editForm.groupId" placeholder="请输入权限小组ID" />
+        <el-form-item v-if="!embedded" :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_GROUP', '权限小组')" prop="groupId">
+          <el-input v-model="editForm.groupId" :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_GROUP_ID', '请输入权限小组ID')" />
         </el-form-item>
-        <el-form-item label="权限策略" prop="metaId">
+        <el-form-item :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_META', '权限策略')" prop="metaId">
           <ApiSelect
             :key="`edit-meta-${editOrganId ?? 'none'}`"
             v-model="editForm.metaId"
             :api-method="editMetaSelectMethod"
             label-key="name"
-            placeholder="请选择权限策略"
+            :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_META', '请选择权限策略')"
             allow-empty-keyword
             prefetch-on-open
             :disabled="!embedded && editOrganId == null"
@@ -123,11 +127,21 @@
             @change="handleEditMetaChange"
           />
         </el-form-item>
-        <el-form-item label="权限">
-          <el-checkbox v-model="editForm.read">可读</el-checkbox>
-          <el-checkbox v-model="editForm.write">可写</el-checkbox>
+        <el-form-item :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_READ', '可读')">
+          <el-radio-group v-model="editForm.read">
+            <el-radio v-for="option in boolOptions" :key="`read-${String(option.value)}`" :value="option.value">
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="权限规则" prop="permissionRule">
+        <el-form-item :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_WRITE', '可写')">
+          <el-radio-group v-model="editForm.write">
+            <el-radio v-for="option in boolOptions" :key="`write-${String(option.value)}`" :value="option.value">
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_RULE', '权限规则')" prop="permissionRule">
           <div class="permission-rule-builder">
             <div
               v-for="(row, index) in ruleRows"
@@ -136,9 +150,10 @@
             >
               <el-select
                 v-model="row.fieldName"
-                placeholder="选择字段"
+                :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_FIELD', '选择字段')"
                 :disabled="!editForm.metaId || metaFields.length === 0"
                 class="permission-rule-builder__field"
+                style="width: 140px"
               >
                 <el-option
                   v-for="field in availableFieldsForRow(index)"
@@ -149,7 +164,7 @@
               </el-select>
               <el-input
                 v-model="row.valuesText"
-                placeholder="多个值用逗号分隔，如 1,2,3 或 a,b,c"
+                :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_VALUES', '多个值用逗号分隔，如 1,2,3 或 a,b,c')"
                 class="permission-rule-builder__values"
               />
               <el-button
@@ -158,7 +173,7 @@
                 link
                 @click="removeRuleRow(index)"
               >
-                删除
+                {{ $t('G2_BTN_DELETE', '删除') }}
               </el-button>
             </div>
             <el-button
@@ -168,18 +183,18 @@
               :disabled="!editForm.metaId"
               @click="addRuleRow"
             >
-              添加条件
+              {{ $t('DE_DATA_PERMISSION_OTHER_BTN_ADD_CONDITION', '添加条件') }}
             </el-button>
             <div v-if="editForm.metaId && metaFields.length === 0" class="permission-rule-builder__hint">
-              当前权限策略暂无可选字段
+              {{ $t('DE_DATA_PERMISSION_OTHER_HINT_NO_FIELDS', '当前权限策略暂无可选字段') }}
             </div>
           </div>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="submitEdit">保 存</el-button>
+          <el-button @click="editDialogVisible = false">{{ $t('G2_BTN_CANCEL', '取消') }}</el-button>
+          <el-button type="primary" @click="submitEdit">{{ $t('G2_BTN_SAVE', '保存') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -190,23 +205,40 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { t } from '@platform/i18n';
 import { DataPermissionOtherApi } from './api';
 import { DataPermissionMetaApi } from '../data_permission_meta/api';
 import { DataPermissionFieldApi } from '../data_permission_field/api';
 import type { DataPermissionField } from '../data_permission_field/type';
 import { OrganApi } from '../organ/api';
 import { DictItemApi } from '../dict/api';
-import { useCommonStatus } from '../shared/useCommonStatus';
+import { useBooleanFlag } from '../shared/useBooleanFlag';
 import type { DataPermissionOther, DataPermissionOtherPayload, DataPermissionOtherQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, DictText, StatusSwitch, showErrorMessage } from '@/components';
 import { buildPermissionRule, parsePermissionRule, validatePermissionRuleRows, type PermissionRuleRow } from './permissionRule.util';
+import { storeToRefs } from 'pinia';
+import { useLocaleStore } from '@platform/stores/locale.store';
 
-const { statusOptions, loadCommonStatusDict } = useCommonStatus();
+const { boolOptions, loadBooleanFlagDict } = useBooleanFlag();
 
 const props = defineProps<{ groupId?: number; organId?: number }>();
 
 const embedded = computed(() => props.groupId != null);
+
+const RULE_VALIDATION_I18N: Record<string, [string, string]> = {
+  '请至少配置一条权限规则': ['DE_DATA_PERMISSION_OTHER_ERR_RULE_MIN', '请至少配置一条权限规则'],
+  '请选择权限字段': ['DE_DATA_PERMISSION_OTHER_ERR_FIELD', '请选择权限字段'],
+  '请输入字段值': ['DE_DATA_PERMISSION_OTHER_ERR_VALUES', '请输入字段值'],
+  '请输入有效的字段值': ['DE_DATA_PERMISSION_OTHER_ERR_VALUES_INVALID', '请输入有效的字段值'],
+  '权限字段不能重复': ['DE_DATA_PERMISSION_OTHER_ERR_FIELD_DUP', '权限字段不能重复'],
+};
+
+const translateRuleError = (msg: string | null): string | null => {
+  if (!msg) return null;
+  const entry = RULE_VALIDATION_I18N[msg];
+  return entry ? t(entry[0], entry[1]) : msg;
+};
 
 const metaOptions = ref<Array<{ value: number; label: string; modelId: number }>>([]);
 const metaFields = ref<DataPermissionField[]>([]);
@@ -366,7 +398,7 @@ const loadData = async () => {
     pagination.total = pageData.total;
     await loadMetaOptions(effectiveOrganId.value);
   } catch (error: any) {
-    showErrorMessage(error || '加载列表失败');
+    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
   }
 };
 
@@ -405,7 +437,11 @@ const handlePageChange = (page: number) => {
 };
 
 const handleDelete = (row: DataPermissionOther) => {
-  ElMessageBox.confirm(`确认删除规则配置「${row.id}」吗？`, '提示', { type: 'warning' })
+  ElMessageBox.confirm(
+    t('DE_DATA_PERMISSION_OTHER_DEL_CONFIRM', `确认删除规则配置「${row.id}」吗？`),
+    t('G2_LBL_TIP', '提示'),
+    { type: 'warning' },
+  )
     .then(async () => {
       try {
         await DataPermissionOtherApi.remove(row.id);
@@ -413,9 +449,9 @@ const handleDelete = (row: DataPermissionOther) => {
           pagination.pageNum--;
         }
         await loadData();
-        ElMessage.success('删除成功');
+        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
       } catch (error: any) {
-        showErrorMessage(error || '删除失败');
+        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
       }
     })
     .catch(() => {});
@@ -437,13 +473,13 @@ const editForm = reactive({
 
 const editRules = computed<FormRules>(() => ({
   ...(!embedded.value
-    ? { organId: [{ required: true, message: '请选择所属机构', trigger: 'change' }] }
+    ? { organId: [{ required: true, message: t('DE_DATA_PERMISSION_OTHER_VLD_ORGAN', '请选择所属机构'), trigger: 'change' }] }
     : {}),
-  metaId: [{ required: true, message: '请选择权限策略', trigger: 'change' }],
+  metaId: [{ required: true, message: t('DE_DATA_PERMISSION_OTHER_VLD_META', '请选择权限策略'), trigger: 'change' }],
   ...(embedded.value
     ? {}
-    : { groupId: [{ required: true, message: '请输入权限小组ID', trigger: 'blur' }] }),
-  permissionRule: [{ required: true, message: '请配置权限规则', trigger: 'change' }],
+    : { groupId: [{ required: true, message: t('DE_DATA_PERMISSION_OTHER_VLD_GROUP_ID', '请输入权限小组ID'), trigger: 'blur' }] }),
+  permissionRule: [{ required: true, message: t('DE_DATA_PERMISSION_OTHER_VLD_RULE', '请配置权限规则'), trigger: 'change' }],
 }));
 
 const handleCreate = () => {
@@ -478,15 +514,15 @@ const handleEdit = async (row: DataPermissionOther) => {
 
 const submitEdit = async () => {
   if (!editForm.metaId) {
-    ElMessage.warning('请选择权限策略');
+    ElMessage.warning(t('DE_DATA_PERMISSION_OTHER_WARN_META', '请选择权限策略'));
     return;
   }
   if (metaFields.value.length === 0) {
-    ElMessage.warning('当前权限策略无可选字段');
+    ElMessage.warning(t('DE_DATA_PERMISSION_OTHER_WARN_NO_FIELDS', '当前权限策略无可选字段'));
     return;
   }
 
-  const ruleError = validatePermissionRuleRows(ruleRows.value);
+  const ruleError = translateRuleError(validatePermissionRuleRows(ruleRows.value));
   if (ruleError) {
     ElMessage.warning(ruleError);
     return;
@@ -511,11 +547,11 @@ const submitEdit = async () => {
       payload.id = editForm.id;
     }
     await DataPermissionOtherApi.save(payload);
-    ElMessage.success(isEdit.value ? '更新成功' : '新增成功');
+    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
     await loadData();
     editDialogVisible.value = false;
   } catch (error: any) {
-    showErrorMessage(error || '保存失败');
+    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
   }
 };
 
@@ -557,7 +593,12 @@ watch(
 );
 
 onMounted(() => {
-  loadCommonStatusDict();
+  void loadBooleanFlagDict();
+});
+
+const { locale: userLocale } = storeToRefs(useLocaleStore());
+watch(userLocale, () => {
+  void loadBooleanFlagDict();
 });
 </script>
 
@@ -627,15 +668,27 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  min-width: 0;
 }
 
 .permission-rule-builder__field {
-  width: 200px;
-  flex-shrink: 0;
+  flex: 0 0 140px;
+  width: 140px;
+}
+
+.permission-rule-builder__field :deep(.el-select__wrapper) {
+  width: 100%;
+}
+
+.permission-rule-builder__field :deep(.el-select__selected-item) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .permission-rule-builder__values {
   flex: 1;
+  min-width: 0;
 }
 
 .permission-rule-builder__hint {

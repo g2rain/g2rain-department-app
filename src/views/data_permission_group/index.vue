@@ -3,57 +3,57 @@
   <div class="data_permission_group-page">
     <el-card class="data_permission_group-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item label="所属机构">
-          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" placeholder="请选择所属机构" width="200px" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_ORGAN', '所属机构')">
+          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('DE_DATA_PERMISSION_GROUP_PH_ORGAN', '请选择所属机构')" width="200px" />
         </el-form-item>
-        <el-form-item label="小组名称">
-          <el-input v-model="queryForm.groupName" placeholder="请输入小组名称" clearable style="width: 200px" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_GROUP_NAME', '小组名称')">
+          <el-input v-model="queryForm.groupName" :placeholder="$t('DE_DATA_PERMISSION_GROUP_PH_GROUP_NAME', '请输入小组名称')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item label="状态">
-          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" placeholder="请选择状态" />
+        <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
+          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('DE_DATA_PERMISSION_GROUP_PH_STATUS', '请选择状态')" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
+          <el-button @click="handleReset">{{ $t('G2_BTN_RESET', '重置') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <div class="data_permission_group-page__header">
       <div class="data_permission_group-page__title-group">
-        <h2>管理权限小组</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_GROUP_TITLE', '管理权限小组') }}</h2>
       </div>
-      <el-button type="primary" v-permission="'data_permission_group:add'" @click="handleCreate">新增权限小组</el-button>
+      <el-button type="primary" v-permission="'data_permission_group:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_GROUP_BTN_ADD', '新增权限小组') }}</el-button>
     </div>
 
     <el-table :data="tableData" border stripe style="width: 100%">
-      <el-table-column prop="id" label="ID" width="120" />
-      <el-table-column prop="organName" label="所属机构" min-width="140" show-overflow-tooltip />
-      <el-table-column prop="groupName" label="小组名称" width="180" />
-      <el-table-column label="所属部门" min-width="160" show-overflow-tooltip>
+      <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
+      <el-table-column prop="organName" :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_ORGAN', '所属机构')" min-width="140" show-overflow-tooltip />
+      <el-table-column prop="groupName" :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_GROUP_NAME', '小组名称')" width="180" />
+      <el-table-column :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_DEPT', '所属部门')" min-width="160" show-overflow-tooltip>
         <template #default="{ row }">{{ row.deptName ?? row.deptPath }}</template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" width="180">
+      <el-table-column prop="status" :label="$t('G2_FIELD_STATUS', '状态')" width="180">
         <template #default="{ row }">
           <StatusSwitch
             v-model="row.status"
-            permission="data_permission_group:status_update"
+            v-permission="'data_permission_group:status_update'"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
-            :options="statusOptions"
+            usage-code="COMMON_STATUS"
             :api-method="({ nextValue }) => DataPermissionGroupApi.updateStatus(row.id, String(nextValue))"
             @success="loadData"
           />
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="180" />
-      <el-table-column prop="updateTime" label="更新时间" width="180" />
-      <el-table-column label="操作" fixed="right" width="300">
+      <el-table-column prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" />
+      <el-table-column prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" />
+      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="300">
         <template #default="{ row }">
-          <el-button type="primary" link size="small" v-permission="'data_permission_group:edit'" @click="handleEdit(row)">编辑</el-button>
-          <el-button type="primary" link size="small" v-permission="'data_permission_group:relation_users'" @click="handleGroupUsers(row)">关联用户</el-button>
-          <el-button type="warning" link size="small" v-permission="'data_permission_group:rule_config'" @click="handleRuleConfig(row)">规则配置</el-button>
-          <el-button type="danger" link size="small" v-permission="'data_permission_group:delete'" @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" link size="small" v-permission="'data_permission_group:edit'" @click="handleEdit(row)">{{ $t('G2_BTN_EDIT', '编辑') }}</el-button>
+          <el-button type="primary" link size="small" v-permission="'data_permission_group:relation_users'" @click="handleGroupUsers(row)">{{ $t('DE_DATA_PERMISSION_GROUP_BTN_REL_USERS', '关联用户') }}</el-button>
+          <el-button type="warning" link size="small" v-permission="'data_permission_group:rule_config'" @click="handleRuleConfig(row)">{{ $t('DE_DATA_PERMISSION_GROUP_BTN_RULE_CONFIG', '规则配置') }}</el-button>
+          <el-button type="danger" link size="small" v-permission="'data_permission_group:delete'" @click="handleDelete(row)">{{ $t('G2_BTN_DELETE', '删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -70,45 +70,45 @@
       />
     </div>
 
-    <el-dialog v-model="editDialogVisible" :title="isEdit ? '编辑权限小组' : '新增权限小组'" width="520px">
+    <el-dialog v-model="editDialogVisible" :title="isEdit ? $t('DE_DATA_PERMISSION_GROUP_DLG_EDIT', '编辑权限小组') : $t('DE_DATA_PERMISSION_GROUP_DLG_ADD', '新增权限小组')" width="520px">
       <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="120px">
-        <el-form-item label="所属机构" prop="organId">
+        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_ORGAN', '所属机构')" prop="organId">
           <OrganSelect
             v-model="editForm.organId"
             :api-method="OrganApi.searchOrgans"
-            placeholder="请选择所属机构"
+            :placeholder="$t('DE_DATA_PERMISSION_GROUP_PH_ORGAN', '请选择所属机构')"
             width="100%"
           />
         </el-form-item>
-        <el-form-item label="所属部门" prop="deptPath">
+        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_DEPT', '所属部门')" prop="deptPath">
           <ApiSelect
             :key="`dept-${editForm.organId ?? 'none'}`"
             v-model="editForm.deptPath"
             :api-method="editDeptSelectMethod"
             label-key="name"
-            placeholder="请先选择机构，再选择部门"
+            :placeholder="$t('DE_DATA_PERMISSION_GROUP_PH_DEPT', '请先选择机构，再选择部门')"
             allow-empty-keyword
             prefetch-on-open
             width="100%"
           />
         </el-form-item>
-        <el-form-item label="小组名称" prop="groupName">
-          <el-input v-model="editForm.groupName" placeholder="请输入小组名称" />
+        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_FIELD_GROUP_NAME', '小组名称')" prop="groupName">
+          <el-input v-model="editForm.groupName" :placeholder="$t('DE_DATA_PERMISSION_GROUP_PH_GROUP_NAME', '请输入小组名称')" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="submitEdit">保 存</el-button>
+          <el-button @click="editDialogVisible = false">{{ $t('G2_BTN_CANCEL', '取消') }}</el-button>
+          <el-button type="primary" @click="submitEdit">{{ $t('G2_BTN_SAVE', '保存') }}</el-button>
         </span>
       </template>
     </el-dialog>
 
-    <el-dialog v-model="ruleDialogVisible" title="规则配置" width="1010px" destroy-on-close>
+    <el-dialog v-model="ruleDialogVisible" :title="$t('DE_DATA_PERMISSION_GROUP_DLG_RULE', '规则配置')" width="1010px" destroy-on-close>
       <DataPermissionOtherPage :group-id="selectedGroupId" :organ-id="selectedGroupOrganId" />
     </el-dialog>
 
-    <el-dialog v-model="groupUserDialogVisible" title="管理关联用户" width="1010px" destroy-on-close>
+    <el-dialog v-model="groupUserDialogVisible" :title="$t('DE_DATA_PERMISSION_GROUP_DLG_REL_USERS', '管理关联用户')" width="1010px" destroy-on-close>
       <DataPermissionGroupUserRelationPage
         :group-id="selectedGroupId"
         :organ-id="selectedGroupOrganId"
@@ -122,18 +122,16 @@
 import { ref, reactive, watch, computed, onMounted } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { t } from '@platform/i18n';
 import { DataPermissionGroupApi } from './api';
 import { DepartmentApi } from '../department/api';
 import { OrganApi } from '../organ/api';
 import { DictItemApi } from '../dict/api';
-import { useCommonStatus } from '../shared/useCommonStatus';
 import DataPermissionGroupUserRelationPage from '../data_permission_group_user_relation/index.vue';
 import DataPermissionOtherPage from '../data_permission_other/index.vue';
 import type { DataPermissionGroup, DataPermissionGroupPayload, DataPermissionGroupQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
 import { OrganSelect, ApiSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
-
-const { statusOptions, loadCommonStatusDict } = useCommonStatus();
 
 const queryForm = reactive({
   organId: undefined as number | undefined,
@@ -193,7 +191,7 @@ const loadData = async () => {
     tableData.value = records;
     pagination.total = pageData.total;
   } catch (error: any) {
-    showErrorMessage(error || '加载列表失败');
+    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
   }
 };
 
@@ -222,7 +220,11 @@ const handlePageChange = (page: number) => {
 };
 
 const handleDelete = (row: DataPermissionGroup) => {
-  ElMessageBox.confirm(`确认删除权限小组「${row.groupName}」吗？`, '提示', { type: 'warning' })
+  ElMessageBox.confirm(
+    t('DE_DATA_PERMISSION_GROUP_DEL_CONFIRM', `确认删除权限小组「${row.groupName}」吗？`),
+    t('G2_LBL_TIP', '提示'),
+    { type: 'warning' },
+  )
     .then(async () => {
       try {
         await DataPermissionGroupApi.remove(row.id);
@@ -230,9 +232,9 @@ const handleDelete = (row: DataPermissionGroup) => {
           pagination.pageNum--;
         }
         await loadData();
-        ElMessage.success('删除成功');
+        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
       } catch (error: any) {
-        showErrorMessage(error || '删除失败');
+        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
       }
     })
     .catch(() => {});
@@ -252,11 +254,11 @@ const editForm = reactive({
 
 const editDeptSelectMethod = computed(() => DataPermissionGroupApi.createDeptPathSelectMethod(editForm.organId));
 
-const editRules: FormRules = {
-  organId: [{ required: true, message: '请选择所属机构', trigger: 'change' }],
-  deptPath: [{ required: true, message: '请选择所属部门', trigger: 'change' }],
-  groupName: [{ required: true, message: '请输入小组名称', trigger: 'blur' }],
-};
+const editRules = computed<FormRules>(() => ({
+  organId: [{ required: true, message: t('DE_DATA_PERMISSION_GROUP_VLD_ORGAN', '请选择所属机构'), trigger: 'change' }],
+  deptPath: [{ required: true, message: t('DE_DATA_PERMISSION_GROUP_VLD_DEPT', '请选择所属部门'), trigger: 'change' }],
+  groupName: [{ required: true, message: t('DE_DATA_PERMISSION_GROUP_VLD_GROUP_NAME', '请输入小组名称'), trigger: 'blur' }],
+}));
 
 watch(
   () => editForm.organId,
@@ -302,11 +304,11 @@ const submitEdit = async () => {
       payload.id = editForm.id;
     }
     await DataPermissionGroupApi.save(payload);
-    ElMessage.success(isEdit.value ? '更新成功' : '新增成功');
+    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
     await loadData();
     editDialogVisible.value = false;
   } catch (error: any) {
-    showErrorMessage(error || '保存失败');
+    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
   }
 };
 
@@ -331,17 +333,16 @@ const handleGroupUsers = async (row: DataPermissionGroup) => {
     const depts = await DepartmentApi.list({ organId: row.organId, deptPath: row.deptPath });
     selectedDepartmentId.value = depts[0]?.id;
     if (selectedDepartmentId.value == null) {
-      ElMessage.error('未找到小组所属部门，请检查部门路径配置');
+      ElMessage.error(t('DE_DATA_PERMISSION_GROUP_ERR_DEPT_NOT_FOUND', '未找到小组所属部门，请检查部门路径配置'));
       return;
     }
     groupUserDialogVisible.value = true;
   } catch (error: any) {
-    showErrorMessage(error || '加载所属部门失败');
+    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_ERR_LOAD_DEPT', '加载所属部门失败'));
   }
 };
 
-onMounted(async () => {
-  await loadCommonStatusDict();
+onMounted(() => {
   loadData();
 });
 </script>
