@@ -183,7 +183,7 @@ import { DictItemApi } from '../dict/api';
 import { useBooleanFlag } from '../shared/useBooleanFlag';
 import type { DataPermissionMeta, DataPermissionMetaPayload, DataPermissionMetaQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, StatusSwitch, DictText, showErrorMessage } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, StatusSwitch, DictText } from '@/components';
 import { storeToRefs } from 'pinia';
 import { useLocaleStore } from '@platform/stores/locale.store';
 
@@ -236,8 +236,8 @@ const loadData = async () => {
 
     tableData.value = pageData.records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -258,7 +258,6 @@ const handleReset = () => {
   queryForm.organId = undefined;
   queryForm.modelId = undefined;
   queryForm.status = '';
-  queryForm.sorts = undefined;
   pagination.pageNum = 1;
   loadData();
 };
@@ -289,16 +288,12 @@ const handleDelete = (row: DataPermissionMeta) => {
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DataPermissionMetaApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DataPermissionMetaApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -369,17 +364,13 @@ const submitEdit = async () => {
     remark: editForm.remark,
   };
 
-  try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DataPermissionMetaApi.save(payload);
-    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
-    await loadData();
-    editDialogVisible.value = false;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
+  if (isEdit.value) {
+    payload.id = editForm.id;
   }
+  await DataPermissionMetaApi.save(payload);
+  ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
+  await loadData();
+  editDialogVisible.value = false;
 };
 
 onMounted(async () => {

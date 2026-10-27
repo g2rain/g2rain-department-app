@@ -131,7 +131,7 @@ import DataPermissionGroupUserRelationPage from '../data_permission_group_user_r
 import DataPermissionOtherPage from '../data_permission_other/index.vue';
 import type { DataPermissionGroup, DataPermissionGroupPayload, DataPermissionGroupQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { OrganSelect, ApiSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+import { OrganSelect, ApiSelect, DictSelect, StatusSwitch } from '@/components';
 
 const queryForm = reactive({
   organId: undefined as number | undefined,
@@ -190,8 +190,8 @@ const loadData = async () => {
     await enrichDeptNames(records);
     tableData.value = records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -226,16 +226,12 @@ const handleDelete = (row: DataPermissionGroup) => {
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DataPermissionGroupApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DataPermissionGroupApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -299,17 +295,13 @@ const submitEdit = async () => {
     groupName: editForm.groupName,
   };
 
-  try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DataPermissionGroupApi.save(payload);
-    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
-    await loadData();
-    editDialogVisible.value = false;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
+  if (isEdit.value) {
+    payload.id = editForm.id;
   }
+  await DataPermissionGroupApi.save(payload);
+  ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
+  await loadData();
+  editDialogVisible.value = false;
 };
 
 const ruleDialogVisible = ref(false);
@@ -329,17 +321,13 @@ const handleGroupUsers = async (row: DataPermissionGroup) => {
   selectedGroupOrganId.value = row.organId;
   selectedDepartmentId.value = undefined;
 
-  try {
-    const depts = await DepartmentApi.list({ organId: row.organId, deptPath: row.deptPath });
-    selectedDepartmentId.value = depts[0]?.id;
-    if (selectedDepartmentId.value == null) {
-      ElMessage.error(t('DE_DATA_PERMISSION_GROUP_ERR_DEPT_NOT_FOUND', '未找到小组所属部门，请检查部门路径配置'));
-      return;
-    }
-    groupUserDialogVisible.value = true;
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_ERR_LOAD_DEPT', '加载所属部门失败'));
+  const depts = await DepartmentApi.list({ organId: row.organId, deptPath: row.deptPath });
+  selectedDepartmentId.value = depts[0]?.id;
+  if (selectedDepartmentId.value == null) {
+    ElMessage.error(t('DE_DATA_PERMISSION_GROUP_ERR_DEPT_NOT_FOUND', '未找到小组所属部门，请检查部门路径配置'));
+    return;
   }
+  groupUserDialogVisible.value = true;
 };
 
 onMounted(() => {

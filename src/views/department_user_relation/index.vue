@@ -83,7 +83,7 @@ import { t } from '@platform/i18n';
 import { DepartmentUserRelationApi } from './api';
 import type { DepartmentUserRelation, DepartmentUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { UserSelect, showErrorMessage } from '@/components';
+import { UserSelect } from '@/components';
 import UserPicker from '../user/index.vue';
 import { UserApi } from '../user/api';
 
@@ -139,13 +139,13 @@ const loadData = async () => {
     const records = pageData.records ?? [];
     try {
       await enrichUserFields(records);
-    } catch (error: any) {
-      showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_USER_FAIL', '加载用户信息失败'));
+    } catch {
+      // 请求失败已由 http 层统一提示
     }
     tableData.value = records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -180,16 +180,12 @@ const handleDelete = (row: DepartmentUserRelation) => {
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DepartmentUserRelationApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DepartmentUserRelationApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -205,16 +201,11 @@ const handleCreate = async () => {
     return;
   }
 
-  try {
-    const relations = await DepartmentUserRelationApi.list({
-      organId: effectiveOrganId.value,
-      departmentId: effectiveDepartmentId.value,
-    });
-    linkedUserIds.value = relations.map(item => item.userId);
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_LINKED_FAIL', '加载已关联用户失败'));
-    return;
-  }
+  const relations = await DepartmentUserRelationApi.list({
+    organId: effectiveOrganId.value,
+    departmentId: effectiveDepartmentId.value,
+  });
+  linkedUserIds.value = relations.map(item => item.userId);
 
   associateDialogVisible.value = true;
   nextTick(() => userPickerRef.value?.clearSelection());
@@ -241,8 +232,6 @@ const submitAssociate = async () => {
     }
     associateDialogVisible.value = false;
     await loadData();
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LINK_FAIL', '关联失败'));
   } finally {
     associateSaving.value = false;
   }

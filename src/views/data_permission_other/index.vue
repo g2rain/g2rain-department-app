@@ -215,7 +215,7 @@ import { DictItemApi } from '../dict/api';
 import { useBooleanFlag } from '../shared/useBooleanFlag';
 import type { DataPermissionOther, DataPermissionOtherPayload, DataPermissionOtherQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, DictText, StatusSwitch, showErrorMessage } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, DictText, StatusSwitch } from '@/components';
 import { buildPermissionRule, parsePermissionRule, validatePermissionRuleRows, type PermissionRuleRow } from './permissionRule.util';
 import { storeToRefs } from 'pinia';
 import { useLocaleStore } from '@platform/stores/locale.store';
@@ -397,8 +397,8 @@ const loadData = async () => {
     tableData.value = pageData.records;
     pagination.total = pageData.total;
     await loadMetaOptions(effectiveOrganId.value);
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -420,7 +420,6 @@ const handleReset = () => {
   queryForm.metaId = undefined;
   queryForm.groupId = props.groupId;
   queryForm.status = '';
-  queryForm.sorts = undefined;
   pagination.pageNum = 1;
   loadData();
 };
@@ -443,16 +442,12 @@ const handleDelete = (row: DataPermissionOther) => {
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DataPermissionOtherApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DataPermissionOtherApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -542,17 +537,13 @@ const submitEdit = async () => {
     permissionRule: editForm.permissionRule,
   };
 
-  try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DataPermissionOtherApi.save(payload);
-    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
-    await loadData();
-    editDialogVisible.value = false;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
+  if (isEdit.value) {
+    payload.id = editForm.id;
   }
+  await DataPermissionOtherApi.save(payload);
+  ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
+  await loadData();
+  editDialogVisible.value = false;
 };
 
 watch(

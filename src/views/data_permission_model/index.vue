@@ -115,7 +115,7 @@ import { DataPermissionModelApi } from './api';
 import DataPermissionFieldPage from '../data_permission_field/index.vue';
 import type { DataPermissionModel, DataPermissionModelPayload, DataPermissionModelQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton, showErrorMessage } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton } from '@/components';
 
 const queryForm = reactive({
   modelName: '',
@@ -147,8 +147,8 @@ const loadData = async () => {
 
     tableData.value = pageData.records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -169,7 +169,6 @@ const handleReset = () => {
   queryForm.modelName = '';
   queryForm.moduleCode = '';
   queryForm.tableName = '';
-  queryForm.sorts = undefined;
   pagination.pageNum = 1;
   loadData();
 };
@@ -200,16 +199,12 @@ const handleDelete = (row: DataPermissionModel) => {
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DataPermissionModelApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DataPermissionModelApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -271,17 +266,13 @@ const submitEdit = async () => {
     remark: editForm.remark,
   };
 
-  try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DataPermissionModelApi.save(payload);
-    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
-    await loadData();
-    editDialogVisible.value = false;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
+  if (isEdit.value) {
+    payload.id = editForm.id;
   }
+  await DataPermissionModelApi.save(payload);
+  ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
+  await loadData();
+  editDialogVisible.value = false;
 };
 
 const conditionFieldDialogVisible = ref(false);

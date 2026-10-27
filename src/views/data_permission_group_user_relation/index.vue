@@ -95,7 +95,7 @@ import { DictItemApi } from '../dict/api';
 import DepartmentMemberPicker from '../department_user_relation/picker.vue';
 import type { DataPermissionGroupUserRelation, DataPermissionGroupUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { UserSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+import { UserSelect, DictSelect, StatusSwitch } from '@/components';
 import { UserApi } from '../user/api';
 
 const props = defineProps<{ groupId?: number; organId?: number; departmentId?: number }>();
@@ -129,8 +129,8 @@ const resolveDepartmentId = async () => {
     const group = await DataPermissionGroupApi.getById(props.groupId);
     const depts = await DepartmentApi.list({ organId: props.organId, deptPath: group.deptPath });
     resolvedDepartmentId.value = depts[0]?.id;
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_RESOLVE_DEPT', '解析所属部门失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -174,13 +174,13 @@ const loadData = async () => {
     const records = pageData.records ?? [];
     try {
       await enrichUserFields(records);
-    } catch (error: any) {
-      showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LOAD_USER', '加载用户信息失败'));
+    } catch {
+      // 请求失败已由 http 层统一提示
     }
     tableData.value = records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -214,16 +214,12 @@ const handleDelete = (row: DataPermissionGroupUserRelation) => {
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DataPermissionGroupUserRelationApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DataPermissionGroupUserRelationApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -243,16 +239,11 @@ const handleCreate = async () => {
     return;
   }
 
-  try {
-    const relations = await DataPermissionGroupUserRelationApi.list({
-      organId: effectiveOrganId.value,
-      groupId: effectiveGroupId.value,
-    });
-    linkedUserIds.value = relations.map(item => item.userId);
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LOAD_LINKED', '加载已关联用户失败'));
-    return;
-  }
+  const relations = await DataPermissionGroupUserRelationApi.list({
+    organId: effectiveOrganId.value,
+    groupId: effectiveGroupId.value,
+  });
+  linkedUserIds.value = relations.map(item => item.userId);
 
   associateDialogVisible.value = true;
   nextTick(() => memberPickerRef.value?.clearSelection());
@@ -279,8 +270,6 @@ const submitAssociate = async () => {
     }
     associateDialogVisible.value = false;
     await loadData();
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LINK_FAIL', '关联失败'));
   } finally {
     associateSaving.value = false;
   }

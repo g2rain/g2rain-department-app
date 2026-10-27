@@ -58,12 +58,11 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed, nextTick } from 'vue';
 import type { TableInstance } from 'element-plus';
-import { t } from '@platform/i18n';
 import { UserApi } from './api';
 import { OrganApi } from '../organ/api';
 import type { User, UserQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { OrganSelect, showErrorMessage } from '@/components';
+import { OrganSelect } from '@/components';
 
 const props = withDefaults(
   defineProps<{
@@ -126,8 +125,8 @@ const loadData = async () => {
     tableData.value = pageData.records || [];
     pagination.total = pageData.total;
     syncTableSelection();
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_USER_MSG_LOAD_FAIL', '加载用户列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 

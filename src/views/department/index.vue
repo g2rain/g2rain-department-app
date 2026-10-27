@@ -111,7 +111,7 @@ import { OrganApi } from '../organ/api';
 import { DictItemApi } from '../dict/api';
 import DepartmentUserRelationPage from '../department_user_relation/index.vue';
 import type { Department, DepartmentPayload, DepartmentQuery } from './type';
-import { OrganSelect, UserSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+import { OrganSelect, UserSelect, DictSelect, StatusSwitch } from '@/components';
 
 type DepartmentTreeNode = Department & { children?: DepartmentTreeNode[] };
 
@@ -153,8 +153,8 @@ const loadData = async () => {
         .filter(([_, v]) => (v ?? '') !== '' && [v].flat().length)
     ) as DepartmentQuery;
     tableData.value = await DepartmentApi.list(query);
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -177,13 +177,9 @@ const handleDelete = (row: Department) => {
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DepartmentApi.remove(row.id);
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
-      }
+      await DepartmentApi.remove(row.id);
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -260,17 +256,13 @@ const submitEdit = async () => {
     payload.leaderUserId = editForm.leaderUserId;
   }
 
-  try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DepartmentApi.save(payload);
-    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
-    await loadData();
-    editDialogVisible.value = false;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
+  if (isEdit.value) {
+    payload.id = editForm.id;
   }
+  await DepartmentApi.save(payload);
+  ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
+  await loadData();
+  editDialogVisible.value = false;
 };
 
 const departmentUserDialogVisible = ref(false);

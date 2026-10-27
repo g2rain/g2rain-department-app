@@ -47,11 +47,10 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed, nextTick } from 'vue';
 import type { TableInstance } from 'element-plus';
-import { t } from '@platform/i18n';
 import { DepartmentUserRelationApi } from './api';
 import type { DepartmentUserRelation, DepartmentUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { UserSelect, showErrorMessage } from '@/components';
+import { UserSelect } from '@/components';
 import { UserApi } from '../user/api';
 import type { User } from '../user/type';
 
@@ -128,8 +127,8 @@ const loadData = async () => {
     tableData.value = records;
     pagination.total = pageData.total;
     syncTableSelection();
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_MEMBERS_FAIL', '加载部门成员失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 

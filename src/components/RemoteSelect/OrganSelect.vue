@@ -25,7 +25,7 @@ import type { FetchDataFunction, RemoteSelectOption } from './types';
 
 interface Props {
   modelValue?: number | null;
-  apiMethod: (params: { key?: string; value?: number }) => Promise<RemoteSelectOption[]>;
+  apiMethod: (params: { key?: string; value?: number; signal?: AbortSignal }) => Promise<RemoteSelectOption[]>;
   valueKey?: string;
   labelKey?: string;
   placeholder?: string;
@@ -104,7 +104,7 @@ const fetchData: FetchDataFunction<RemoteSelectOption> = async (params) => {
   try {
     return await props.apiMethod(params);
   } catch (error) {
-    console.error('OrganSelect fetchData error:', error);
+    if (!params.signal?.aborted) console.error('OrganSelect fetchData error:', error);
     return [];
   }
 };
