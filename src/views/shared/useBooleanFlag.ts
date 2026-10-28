@@ -10,12 +10,12 @@ export function useBooleanFlag() {
     try {
       const items = await DictItemApi.loadByUsageCode('BOOLEAN_FLAG');
       boolOptions.value = [...items]
-        .sort((a, b) => (a.sortIndex ?? 0) - (b.sortIndex ?? 0))
+        .sort((a, b) => Number(a.sortIndex ?? 0) - Number(b.sortIndex ?? 0))
         .map(item => {
-          const value = parseDictCodeAsBoolean(String(item.code));
+          const value = parseDictCodeAsBoolean(String(item.code ?? ''));
           if (value === undefined) return null;
           return {
-            label: item.name || String(item.code),
+            label: String(item.name || item.code || ''),
             value,
           };
         })

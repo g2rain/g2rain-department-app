@@ -112,16 +112,14 @@ npm run dev
 
 ## 页面代码生成
 
-代码生成器读取 `src/shared/generator/database.sql`，必须通过 `--tables` 指定目标表：
+先把需要生成的 `CREATE TABLE` 放入 `scripts/database.sql`，再执行（引擎为 `create-g2rain-app`）：
 
 ```bash
-npm run build:generate -- --tables=department
-npm run build:generate -- --tables=department,data_permission_model
+node ./scripts/run-generate.mjs --tables=department
+node ./scripts/run-generate.mjs --tables=department,data_permission_model --skip-mock
 ```
 
-可使用 `--no-view`、`--no-api`、`--no-mock`、`--no-route` 跳过对应输出。生成过程会写入或覆盖 `src/views/<table>` 下的页面、API、类型、Mock，并可能更新 `src/views/route-map.ts`；执行前应保存现有工作，执行后必须逐文件审查。
-
-详细参数见[代码生成文档](src/shared/generator/README.md)。
+生成器会写入或覆盖 `src/views/<table>/` 下的页面、API、类型、Mock，并按选项更新 `src/views/route-map.ts`。生成前先检查 Git 状态，生成后必须 Review Diff。详见[代码生成](docs/development/code-generation.md)。
 
 ## 资源配置生成
 
@@ -129,13 +127,13 @@ npm run build:generate -- --tables=department,data_permission_model
 npm run build:config
 ```
 
-该命令扫描 `src/views/route-map.ts` 和页面中的权限指令，并覆盖以下已跟踪文件：
+当前实现生成：
 
 - `src/shared/config-util/config/resources.json`
 - `src/shared/config-util/config/pages.json`
 - `src/shared/config-util/config/page-elements.json`
 
-当前 API parser/writer 未接入主流程，因此 API 资源数量为 0。页面或权限元素变化后，应运行命令、审查差异，再执行构建和双模式人工回归。详见[资源配置生成文档](src/shared/config-util/README.md)。
+当前 API 端点解析未接入主流程，`apiEndpoints` 为空。详见[资源配置生成](docs/development/resource-generation.md)。
 
 ## 配置说明
 

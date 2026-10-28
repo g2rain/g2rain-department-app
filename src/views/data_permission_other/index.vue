@@ -67,7 +67,7 @@
             active-value="ACTIVE"
             inactive-value="INACTIVE"
             usage-code="COMMON_STATUS"
-            :api-method="({ nextValue }) => DataPermissionOtherApi.updateStatus(row.id, String(nextValue))"
+            :api-method="({ nextValue }) => updateOtherStatus(row.id, nextValue)"
             @success="loadData"
           />
         </template>
@@ -215,10 +215,14 @@ import { DictItemApi } from '../dict/api';
 import { useBooleanFlag } from '../shared/useBooleanFlag';
 import type { DataPermissionOther, DataPermissionOtherPayload, DataPermissionOtherQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, DictText, StatusSwitch } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton, ApiSelect } from '@g2rain/ui';
+import { OrganSelect, DictSelect, DictText, StatusSwitch } from '@g2rain/ui/platform';
 import { buildPermissionRule, parsePermissionRule, validatePermissionRuleRows, type PermissionRuleRow } from './permissionRule.util';
 import { storeToRefs } from 'pinia';
 import { useLocaleStore } from '@platform/stores/locale.store';
+
+const updateOtherStatus = (id: number, nextValue: string | number | boolean) =>
+  DataPermissionOtherApi.updateStatus(id, String(nextValue));
 
 const { boolOptions, loadBooleanFlagDict } = useBooleanFlag();
 
@@ -596,7 +600,7 @@ watch(userLocale, () => {
 <style scoped>
 .data_permission_other-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -616,7 +620,7 @@ watch(userLocale, () => {
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -641,7 +645,7 @@ watch(userLocale, () => {
 
 .data_permission_other-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_other-page__pagination {
@@ -684,7 +688,7 @@ watch(userLocale, () => {
 
 .permission-rule-builder__hint {
   margin-top: 4px;
-  color: #909399;
+  color: var(--g2-text-secondary);
   font-size: 12px;
 }
 </style>

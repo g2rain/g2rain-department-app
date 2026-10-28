@@ -115,7 +115,7 @@ import { DataPermissionModelApi } from './api';
 import DataPermissionFieldPage from '../data_permission_field/index.vue';
 import type { DataPermissionModel, DataPermissionModelPayload, DataPermissionModelQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton } from '@g2rain/ui';
 
 const queryForm = reactive({
   modelName: '',
@@ -291,7 +291,7 @@ onMounted(() => {
 <style scoped>
 .data_permission_model-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -304,7 +304,7 @@ onMounted(() => {
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -329,7 +329,7 @@ onMounted(() => {
 
 .data_permission_model-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_model-page__pagination {

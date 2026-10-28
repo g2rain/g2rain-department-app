@@ -10,16 +10,20 @@ architectureBaseline:
   ref: architecture-v1.1.0
   profile: docs/architecture/profiles/frontend-app
   version: 1.0.0
-  status: planned
+  status: pilot
   releasedAt: "2026-08-25"
   deviations: docs/architecture/deviations.md
+
+projectArchitecture:
+  role: frontend-app
+  note: HTTP 公共内核经 @g2rain/http，生命周期经 @g2rain/platform/sub；集成挂载要求显式 applicationCode/viewId/instanceId（appKey===instanceId），认证经 Auth Bridge，不再接受仅 appKey 或 props Token 的旧壳路径。
 
 ownership:
   owns:
     - 部门与部门用户关系管理界面及交互用例
     - 数据权限模型、字段、元数据、小组、成员和规则配置界面
     - 本应用的路由、资源加载、权限呈现和微前端生命周期
-    - 本项目页面代码与资源配置生成工具
+    - 本项目生成输入（scripts/database.sql）与资源配置产物
   excludes:
     - g2rain-department 的领域数据、持久化和服务端权限规则
     - IAM 的认证、Token 签发与会话规则
@@ -58,7 +62,7 @@ runtime:
       auth: 应用自行执行 IAM SSO、Token 管理和资源加载
     integrated:
       selector: 默认空模式
-      auth: main-shell 通过 qiankun props 注入 Token、Client、Locale、初始路由和 appKey
+      auth: main-shell 经 Auth Bridge 定向消息下发 Token；公开 props 下发身份字段与 Locale
   resourceEndpoint: /basis/authority/resources
   backendRoutePrefix: /department
   devServerPort: 3002
@@ -67,7 +71,7 @@ runtime:
     defaultServerPort: 80
 
 commands:
-  install: npm ci --legacy-peer-deps
+  install: npm ci
   dev: npm run dev
   verify: npm run build
   preview: npm run preview
@@ -76,19 +80,22 @@ commands:
   image: docker build --build-arg VITE_BUILD_MODE=production -t g2rain/g2rain-department-app:<tag> .
 
 generators:
+  engine: create-g2rain-app
   code:
-    input: src/shared/generator/database.sql
+    command: g2rain-app generate
+    input: scripts/database.sql
     output: src/views/<table>
     updatesRouteMap: true
     overwritesExistingFiles: true
-    switches: [--no-view, --no-api, --no-mock, --no-route]
+    switches: [--skip-view, --skip-api, --skip-mock, --skip-route]
   resource:
+    command: g2rain-app build-config
     routeInput: src/views/route-map.ts
     viewInput: src/views
     output: src/shared/config-util/config
     outputTracked: true
     generated: [resources.json, pages.json, page-elements.json]
-    currentCounts: {pages: 8, pageElements: 26, apiEndpoints: 0}
+    currentCounts: {pages: 8, pageElements: 16, apiEndpoints: 0}
     apiEndpointGeneration: false
 
 collaborators:
@@ -104,11 +111,12 @@ collaborators:
     role: 后端 API 统一入口与鉴权转发
 
 validation:
-  reviewedAt: "2026-09-06"
+  reviewedAt: "2026-10-28"
   command: npm run build
-  status: build-failed
+  status: build-passed
   testsRun: 0
-  failure: src/platform/i18n/index.ts:52 references undefined localeCode
   notes:
-    - vue-tsc 阶段失败，Vite 构建未执行
-    - package.json 未配置 test 或 lint 脚本，未发现自动化测试套件
+    - 已按 member-app / appkit 接入 @g2rain/{http,platform,theme,ui}、createStandardSubPlatform、Auth Bridge
+    - 壳侧已将 g2rain-department-app 从 legacy registry 迁出（main-shell / admin-shell）
+    - 代码/资源配置生成已迁 create-g2rain-app（scripts/ + file:../g2rain-app-cli）
+    - 浏览器联调（alone + main-shell 挂载）待验收

@@ -3,7 +3,7 @@
  * 提供数据权限小组人员关系表数据的 CRUD 操作接口
  */
 
-import { getHttpClient } from '@/components/http';
+import { getHttpClient } from '@runtime/http';
 import type {
   DataPermissionGroupUserRelation,
   DataPermissionGroupUserRelationPayload,

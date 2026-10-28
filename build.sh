@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build + Docker image for g2rain-app-template
+# Build + Docker image for g2rain-department-app
 #
 # Usage:
 #   ./build.sh
-#   ./build.sh --image g2rain/g2rain-app-template --tag latest --build-mode production
+#   ./build.sh --image g2rain/g2rain-department-app --tag latest --build-mode production
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$APP_DIR"

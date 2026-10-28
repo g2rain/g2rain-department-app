@@ -238,7 +238,7 @@ watch(
 <style scoped>
 .data_permission_field-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -251,7 +251,7 @@ watch(
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -276,7 +276,7 @@ watch(
 
 .data_permission_field-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_field-page__pagination {

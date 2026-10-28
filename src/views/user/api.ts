@@ -1,7 +1,7 @@
 /**
  * 用户 API（department-app 调用 basis，供负责人远程下拉等场景）
  */
-import { getHttpClient } from '@/components/http';
+import { getHttpClient } from '@runtime/http';
 import type { User, UserOption, UserQuery } from './type';
 import type { PageData, PageSelectListDto } from '@platform/types/api.type';
 

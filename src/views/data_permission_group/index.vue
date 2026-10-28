@@ -41,7 +41,7 @@
             active-value="ACTIVE"
             inactive-value="INACTIVE"
             usage-code="COMMON_STATUS"
-            :api-method="({ nextValue }) => DataPermissionGroupApi.updateStatus(row.id, String(nextValue))"
+            :api-method="({ nextValue }) => updateGroupStatus(row.id, nextValue)"
             @success="loadData"
           />
         </template>
@@ -131,7 +131,11 @@ import DataPermissionGroupUserRelationPage from '../data_permission_group_user_r
 import DataPermissionOtherPage from '../data_permission_other/index.vue';
 import type { DataPermissionGroup, DataPermissionGroupPayload, DataPermissionGroupQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { OrganSelect, ApiSelect, DictSelect, StatusSwitch } from '@/components';
+import { ApiSelect } from '@g2rain/ui';
+import { OrganSelect, DictSelect, StatusSwitch } from '@g2rain/ui/platform';
+
+const updateGroupStatus = (id: number, nextValue: string | number | boolean) =>
+  DataPermissionGroupApi.updateStatus(id, String(nextValue));
 
 const queryForm = reactive({
   organId: undefined as number | undefined,
@@ -338,7 +342,7 @@ onMounted(() => {
 <style scoped>
 .data_permission_group-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -351,7 +355,7 @@ onMounted(() => {
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -376,7 +380,7 @@ onMounted(() => {
 
 .data_permission_group-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_group-page__pagination {

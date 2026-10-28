@@ -62,7 +62,7 @@ import { UserApi } from './api';
 import { OrganApi } from '../organ/api';
 import type { User, UserQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { OrganSelect } from '@/components';
+import { OrganSelect } from '@g2rain/ui/platform';
 
 const props = withDefaults(
   defineProps<{
@@ -226,7 +226,7 @@ defineExpose({
 
 .user-picker__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .user-picker__inline-search {

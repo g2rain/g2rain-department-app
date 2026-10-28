@@ -3,7 +3,7 @@
  * 提供数据权限数据的 CRUD 操作接口
  */
 
-import { getHttpClient } from '@/components/http';
+import { getHttpClient } from '@runtime/http';
 import type { DataPermissionOther, DataPermissionOtherPayload, DataPermissionOtherQuery } from './type';
 import type { PageData, PageSelectListDto } from '@platform/types/api.type';
 

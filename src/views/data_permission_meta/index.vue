@@ -58,7 +58,7 @@
             active-value="ACTIVE"
             inactive-value="INACTIVE"
             usage-code="COMMON_STATUS"
-            :api-method="({ nextValue }) => DataPermissionMetaApi.updateStatus(row.id, String(nextValue))"
+            :api-method="({ nextValue }) => updateMetaStatus(row.id, nextValue)"
             @success="loadData"
           />
         </template>
@@ -183,9 +183,13 @@ import { DictItemApi } from '../dict/api';
 import { useBooleanFlag } from '../shared/useBooleanFlag';
 import type { DataPermissionMeta, DataPermissionMetaPayload, DataPermissionMetaQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { SortableTable, TableColumn, SortManagerButton, OrganSelect, ApiSelect, DictSelect, StatusSwitch, DictText } from '@/components';
+import { SortableTable, TableColumn, SortManagerButton, ApiSelect } from '@g2rain/ui';
+import { OrganSelect, DictSelect, StatusSwitch, DictText } from '@g2rain/ui/platform';
 import { storeToRefs } from 'pinia';
 import { useLocaleStore } from '@platform/stores/locale.store';
+
+const updateMetaStatus = (id: number, nextValue: string | number | boolean) =>
+  DataPermissionMetaApi.updateStatus(id, String(nextValue));
 
 const { boolOptions, loadBooleanFlagDict } = useBooleanFlag();
 
@@ -388,7 +392,7 @@ watch(userLocale, () => {
 <style scoped>
 .data_permission_meta-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -401,7 +405,7 @@ watch(userLocale, () => {
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -426,7 +430,7 @@ watch(userLocale, () => {
 
 .data_permission_meta-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_meta-page__pagination {

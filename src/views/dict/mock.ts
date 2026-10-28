@@ -3,10 +3,10 @@
  */
 
 import type { AxiosRequestConfig } from 'axios';
-import type { MockDataMap } from '@/components/http/mock-data';
-import type { Result } from '@/components/http/types';
+import type { MockDataMap } from '@runtime/http';
+import type { Result } from '@runtime/http';
 import Mock from 'mockjs';
-import { mockManager } from '@/components/http/mock-data';
+import { mockManager } from '@runtime/http';
 
 import type { DictItem } from './type';
 

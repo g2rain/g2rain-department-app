@@ -48,7 +48,7 @@
             active-value="ACTIVE"
             inactive-value="INACTIVE"
             usage-code="COMMON_STATUS"
-            :api-method="({ nextValue }) => DepartmentApi.updateStatus(row.id, String(nextValue))"
+            :api-method="({ nextValue }) => updateDepartmentStatus(row.id, nextValue)"
             @success="loadData"
           />
         </template>
@@ -111,7 +111,11 @@ import { OrganApi } from '../organ/api';
 import { DictItemApi } from '../dict/api';
 import DepartmentUserRelationPage from '../department_user_relation/index.vue';
 import type { Department, DepartmentPayload, DepartmentQuery } from './type';
-import { OrganSelect, UserSelect, DictSelect, StatusSwitch } from '@/components';
+import { OrganSelect, DictSelect, StatusSwitch } from '@g2rain/ui/platform';
+import { UserSelect } from '@/components';
+
+const updateDepartmentStatus = (id: number, nextValue: string | number | boolean) =>
+  DepartmentApi.updateStatus(id, String(nextValue));
 
 type DepartmentTreeNode = Department & { children?: DepartmentTreeNode[] };
 
@@ -283,7 +287,7 @@ onMounted(async () => {
 <style scoped>
 .department-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -296,7 +300,7 @@ onMounted(async () => {
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -321,6 +325,6 @@ onMounted(async () => {
 
 .department-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 </style>

@@ -41,7 +41,7 @@
             active-value="ACTIVE"
             inactive-value="INACTIVE"
             usage-code="COMMON_STATUS"
-            :api-method="({ nextValue }) => DataPermissionGroupUserRelationApi.updateStatus(row.id, String(nextValue))"
+            :api-method="({ nextValue }) => updateRelationStatus(row.id, nextValue)"
             @success="loadData"
           />
         </template>
@@ -95,8 +95,12 @@ import { DictItemApi } from '../dict/api';
 import DepartmentMemberPicker from '../department_user_relation/picker.vue';
 import type { DataPermissionGroupUserRelation, DataPermissionGroupUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { UserSelect, DictSelect, StatusSwitch } from '@/components';
+import { DictSelect, StatusSwitch } from '@g2rain/ui/platform';
+import { UserSelect } from '@/components';
 import { UserApi } from '../user/api';
+
+const updateRelationStatus = (id: number, nextValue: string | number | boolean) =>
+  DataPermissionGroupUserRelationApi.updateStatus(id, String(nextValue));
 
 const props = defineProps<{ groupId?: number; organId?: number; departmentId?: number }>();
 
@@ -291,7 +295,7 @@ watch(
 <style scoped>
 .data_permission_group_user_relation-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -304,7 +308,7 @@ watch(
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -329,7 +333,7 @@ watch(
 
 .data_permission_group_user_relation-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_group_user_relation-page__pagination {
