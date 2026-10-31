@@ -9,6 +9,8 @@ import type { BaseSelectListDto, BaseVo } from '@platform/types/api.type';
  */
 export interface DepartmentUserRelation extends BaseVo {
   organId: number;
+  /** 网关根据 organId 补全 */
+  organName?: string;
   departmentId: number;
   userId: number;
   /** 列表展示用，由前端按 userId 调用户 list 补齐 */

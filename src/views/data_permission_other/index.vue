@@ -3,11 +3,11 @@
   <div class="data_permission_other-page" :class="{ 'data_permission_other-page--embedded': embedded }">
     <el-card class="data_permission_other-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item v-if="!embedded" :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_ORGAN', '所属机构')">
+        <el-form-item v-if="!embedded" :label="$t('G2_FIELD_ORGAN', '所属机构')">
           <OrganSelect
             v-model="queryForm.organId"
             :api-method="OrganApi.searchOrgans"
-            :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_ORGAN', '请选择所属机构')"
+            :placeholder="$t('G2_PH_ORGAN', '请选择所属机构')"
             width="200px"
           />
         </el-form-item>
@@ -28,7 +28,7 @@
           />
         </el-form-item>
         <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
-          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_STATUS', '请选择状态')" />
+          <DictSelect v-model="queryForm.status" usage-code="ENABLE_STATUS" :api-method="DictItemApi.select" :placeholder="$t('G2_PH_STATUS', '请选择状态')" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
@@ -39,7 +39,7 @@
 
     <div class="data_permission_other-page__header">
       <div class="data_permission_other-page__title-group">
-        <h2>{{ $t('DE_DATA_PERMISSION_OTHER_TITLE', '管理规则配置') }}</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_OTHER_TITLE', '规则配置') }}</h2>
       </div>
       <el-button type="primary" v-permission="'data_permission_other:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_OTHER_BTN_ADD', '新增规则配置') }}</el-button>
     </div>
@@ -66,7 +66,7 @@
             permission="data_permission_other:status_update"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
-            usage-code="COMMON_STATUS"
+            usage-code="ENABLE_STATUS"
             :api-method="({ nextValue }) => updateOtherStatus(row.id, nextValue)"
             @success="loadData"
           />
@@ -102,11 +102,11 @@
 
     <el-dialog v-model="editDialogVisible" :title="isEdit ? $t('DE_DATA_PERMISSION_OTHER_DLG_EDIT', '编辑规则配置') : $t('DE_DATA_PERMISSION_OTHER_DLG_ADD', '新增规则配置')" width="680px">
       <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
-        <el-form-item v-if="!embedded" :label="$t('DE_DATA_PERMISSION_OTHER_FIELD_ORGAN', '所属机构')" prop="organId">
+        <el-form-item v-if="!embedded" :label="$t('G2_FIELD_ORGAN', '所属机构')" prop="organId">
           <OrganSelect
             v-model="editForm.organId"
             :api-method="OrganApi.searchOrgans"
-            :placeholder="$t('DE_DATA_PERMISSION_OTHER_PH_ORGAN', '请选择所属机构')"
+            :placeholder="$t('G2_PH_ORGAN', '请选择所属机构')"
             width="100%"
           />
         </el-form-item>
@@ -230,18 +230,17 @@ const props = defineProps<{ groupId?: number; organId?: number }>();
 
 const embedded = computed(() => props.groupId != null);
 
-const RULE_VALIDATION_I18N: Record<string, [string, string]> = {
-  '请至少配置一条权限规则': ['DE_DATA_PERMISSION_OTHER_ERR_RULE_MIN', '请至少配置一条权限规则'],
-  '请选择权限字段': ['DE_DATA_PERMISSION_OTHER_ERR_FIELD', '请选择权限字段'],
-  '请输入字段值': ['DE_DATA_PERMISSION_OTHER_ERR_VALUES', '请输入字段值'],
-  '请输入有效的字段值': ['DE_DATA_PERMISSION_OTHER_ERR_VALUES_INVALID', '请输入有效的字段值'],
-  '权限字段不能重复': ['DE_DATA_PERMISSION_OTHER_ERR_FIELD_DUP', '权限字段不能重复'],
+const RULE_ERR_DEFAULTS: Record<string, string> = {
+  DE_DATA_PERMISSION_OTHER_ERR_RULE_MIN: '请至少配置一条权限规则',
+  DE_DATA_PERMISSION_OTHER_ERR_FIELD: '请选择权限字段',
+  DE_DATA_PERMISSION_OTHER_ERR_VALUES: '请输入字段值',
+  DE_DATA_PERMISSION_OTHER_ERR_VALUES_INVALID: '请输入有效的字段值',
+  DE_DATA_PERMISSION_OTHER_ERR_FIELD_DUP: '权限字段不能重复',
 };
 
-const translateRuleError = (msg: string | null): string | null => {
-  if (!msg) return null;
-  const entry = RULE_VALIDATION_I18N[msg];
-  return entry ? t(entry[0], entry[1]) : msg;
+const translateRuleError = (code: string | null): string | null => {
+  if (!code) return null;
+  return t(code, RULE_ERR_DEFAULTS[code] ?? code);
 };
 
 const metaOptions = ref<Array<{ value: number; label: string; modelId: number }>>([]);
@@ -441,7 +440,7 @@ const handlePageChange = (page: number) => {
 
 const handleDelete = (row: DataPermissionOther) => {
   ElMessageBox.confirm(
-    t('DE_DATA_PERMISSION_OTHER_DEL_CONFIRM', `确认删除规则配置「${row.id}」吗？`),
+    t('DE_DATA_PERMISSION_OTHER_DEL_CONFIRM', { id: row.id }, '确认删除规则配置「{id}」吗？'),
     t('G2_LBL_TIP', '提示'),
     { type: 'warning' },
   )
@@ -472,7 +471,7 @@ const editForm = reactive({
 
 const editRules = computed<FormRules>(() => ({
   ...(!embedded.value
-    ? { organId: [{ required: true, message: t('DE_DATA_PERMISSION_OTHER_VLD_ORGAN', '请选择所属机构'), trigger: 'change' }] }
+    ? { organId: [{ required: true, message: t('G2_PH_ORGAN', '请选择所属机构'), trigger: 'change' }] }
     : {}),
   metaId: [{ required: true, message: t('DE_DATA_PERMISSION_OTHER_VLD_META', '请选择权限策略'), trigger: 'change' }],
   ...(embedded.value

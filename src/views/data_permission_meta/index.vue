@@ -2,8 +2,8 @@
   <div class="data_permission_meta-page">
     <el-card class="data_permission_meta-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item :label="$t('DE_DATA_PERMISSION_META_FIELD_ORGAN', '所属机构')">
-          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('DE_DATA_PERMISSION_META_PH_ORGAN', '请选择所属机构')" width="200px" />
+        <el-form-item :label="$t('G2_FIELD_ORGAN', '所属机构')">
+          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('G2_PH_ORGAN', '请选择所属机构')" width="200px" />
         </el-form-item>
         <el-form-item :label="$t('DE_DATA_PERMISSION_META_FIELD_MODEL', '权限模型')">
           <ApiSelect
@@ -17,7 +17,7 @@
           />
         </el-form-item>
         <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
-          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('DE_DATA_PERMISSION_META_PH_STATUS', '请选择状态')" />
+          <DictSelect v-model="queryForm.status" usage-code="ENABLE_STATUS" :api-method="DictItemApi.select" :placeholder="$t('G2_PH_STATUS', '请选择状态')" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
@@ -28,24 +28,28 @@
 
     <div class="data_permission_meta-page__header">
       <div class="data_permission_meta-page__title-group">
-        <h2>{{ $t('DE_DATA_PERMISSION_META_TITLE', '管理权限策略') }}</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_META_TITLE', '权限策略') }}</h2>
       </div>
       <el-button type="primary" v-permission="'data_permission_meta:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_META_BTN_ADD', '新增权限策略') }}</el-button>
     </div>
 
     <SortableTable :data="tableData" border stripe style="width: 100%" :enable-multi-sort="true" @sort-change="handleSortChange">
       <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
-      <el-table-column prop="organName" :label="$t('DE_DATA_PERMISSION_META_FIELD_ORGAN', '所属机构')" min-width="160" show-overflow-tooltip />
+      <el-table-column :label="$t('G2_FIELD_ORGAN', '所属机构')" min-width="160" show-overflow-tooltip>
+        <template #default="{ row }">
+          {{ row.organName || row.organId }}
+        </template>
+      </el-table-column>
       <el-table-column prop="metaName" :label="$t('DE_DATA_PERMISSION_META_FIELD_META_NAME', '策略名称')" min-width="160" show-overflow-tooltip />
       <el-table-column :label="$t('DE_DATA_PERMISSION_META_FIELD_MODEL', '权限模型')" min-width="160" show-overflow-tooltip>
         <template #default="{ row }">{{ resolveModelName(row.modelId) }}</template>
       </el-table-column>
-      <el-table-column :label="$t('DE_DATA_PERMISSION_META_FIELD_READ', '可读')" width="80" align="center">
+      <el-table-column :label="$t('DE_DATA_PERMISSION_META_FIELD_READ', '可读')" width="120" align="center">
         <template #default="{ row }">
           <DictText :value="row.read" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
         </template>
       </el-table-column>
-      <el-table-column :label="$t('DE_DATA_PERMISSION_META_FIELD_WRITE', '可写')" width="80" align="center">
+      <el-table-column :label="$t('DE_DATA_PERMISSION_META_FIELD_WRITE', '可写')" width="120" align="center">
         <template #default="{ row }">
           <DictText :value="row.write" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
         </template>
@@ -57,13 +61,13 @@
             permission="data_permission_meta:status_update"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
-            usage-code="COMMON_STATUS"
+            usage-code="ENABLE_STATUS"
             :api-method="({ nextValue }) => updateMetaStatus(row.id, nextValue)"
             @success="loadData"
           />
         </template>
       </el-table-column>
-      <el-table-column prop="remark" :label="$t('DE_DATA_PERMISSION_META_FIELD_REMARK', '备注')" min-width="180" show-overflow-tooltip />
+      <el-table-column prop="remark" :label="$t('G2_FIELD_REMARK', '备注')" min-width="180" show-overflow-tooltip />
       <TableColumn prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" :sortable="true" />
       <TableColumn prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" :sortable="true" />
       <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="260">
@@ -94,12 +98,12 @@
     </div>
 
     <el-dialog v-model="editDialogVisible" :title="editDialogTitle" width="520px">
-      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
-        <el-form-item :label="$t('DE_DATA_PERMISSION_META_FIELD_ORGAN', '所属机构')" prop="organId">
+      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="180px">
+        <el-form-item :label="$t('G2_FIELD_ORGAN', '所属机构')" prop="organId">
           <OrganSelect
             v-model="editForm.organId"
             :api-method="OrganApi.searchOrgans"
-            :placeholder="$t('DE_DATA_PERMISSION_META_PH_ORGAN', '请选择所属机构')"
+            :placeholder="$t('G2_PH_ORGAN', '请选择所属机构')"
             width="100%"
           />
         </el-form-item>
@@ -131,8 +135,8 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item :label="$t('DE_DATA_PERMISSION_META_FIELD_REMARK', '备注')" prop="remark">
-          <el-input v-model="editForm.remark" :placeholder="$t('DE_DATA_PERMISSION_META_PH_REMARK', '请输入备注')" />
+        <el-form-item :label="$t('G2_FIELD_REMARK', '备注')" prop="remark">
+          <el-input v-model="editForm.remark" :placeholder="$t('G2_PH_REMARK', '请输入备注')" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -146,7 +150,7 @@
     <el-dialog v-model="detailDialogVisible" :title="$t('DE_DATA_PERMISSION_META_DETAIL', '权限策略明细')" width="520px">
       <el-descriptions :column="1" border>
         <el-descriptions-item :label="$t('G2_FIELD_ID', 'ID')">{{ currentRow?.id }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('DE_DATA_PERMISSION_META_FIELD_ORGAN', '所属机构')">{{ currentRow?.organName }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('G2_FIELD_ORGAN', '所属机构')">{{ currentRow?.organName || currentRow?.organId }}</el-descriptions-item>
         <el-descriptions-item :label="$t('DE_DATA_PERMISSION_META_FIELD_META_NAME', '策略名称')">{{ currentRow?.metaName }}</el-descriptions-item>
         <el-descriptions-item :label="$t('DE_DATA_PERMISSION_META_FIELD_MODEL', '权限模型')">{{ currentRow ? resolveModelName(currentRow.modelId) : '' }}</el-descriptions-item>
         <el-descriptions-item :label="$t('DE_DATA_PERMISSION_META_FIELD_READ', '可读')">
@@ -156,9 +160,9 @@
           <DictText :value="currentRow?.write" usage-code="BOOLEAN_FLAG" :api-method="DictItemApi.select" />
         </el-descriptions-item>
         <el-descriptions-item :label="$t('G2_FIELD_STATUS', '状态')">
-          <DictText :value="currentRow?.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" />
+          <DictText :value="currentRow?.status" usage-code="ENABLE_STATUS" :api-method="DictItemApi.select" />
         </el-descriptions-item>
-        <el-descriptions-item :label="$t('DE_DATA_PERMISSION_META_FIELD_REMARK', '备注')">{{ currentRow?.remark }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('G2_FIELD_REMARK', '备注')">{{ currentRow?.remark }}</el-descriptions-item>
         <el-descriptions-item :label="$t('G2_FIELD_CREATE_TIME', '创建时间')">{{ currentRow?.createTime }}</el-descriptions-item>
         <el-descriptions-item :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')">{{ currentRow?.updateTime }}</el-descriptions-item>
       </el-descriptions>
@@ -287,7 +291,7 @@ const handleView = (row: DataPermissionMeta) => {
 
 const handleDelete = (row: DataPermissionMeta) => {
   ElMessageBox.confirm(
-    t('DE_DATA_PERMISSION_META_DEL_CONFIRM', `确认删除权限策略「${row.id}」吗？`),
+    t('DE_DATA_PERMISSION_META_DEL_CONFIRM', { id: row.id }, '确认删除权限策略「{id}」吗？'),
     t('G2_LBL_TIP', '提示'),
     { type: 'warning' },
   )
@@ -323,7 +327,7 @@ const editDialogTitle = computed(() =>
 );
 
 const editRules = computed<FormRules>(() => ({
-  organId: [{ required: true, message: t('DE_DATA_PERMISSION_META_PH_ORGAN', '请选择所属机构'), trigger: 'change' }],
+  organId: [{ required: true, message: t('G2_PH_ORGAN', '请选择所属机构'), trigger: 'change' }],
   metaName: [{ required: true, message: t('DE_DATA_PERMISSION_META_PH_META_NAME', '请输入策略名称'), trigger: 'blur' }],
   modelId: [{ required: true, message: t('DE_DATA_PERMISSION_META_PH_MODEL', '请选择权限模型'), trigger: 'change' }],
 }));

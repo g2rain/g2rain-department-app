@@ -1,7 +1,7 @@
 <template>
   <div class="department-member-picker">
     <el-form :model="queryForm" :inline="true" class="department-member-picker__search">
-      <el-form-item :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_USER', '用户')">
+      <el-form-item :label="$t('G2_FIELD_USER', '用户')">
         <UserSelect
           v-model="queryForm.userId"
           :organ-id="organId"
@@ -25,7 +25,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="48" :selectable="isRowSelectable" />
-      <el-table-column prop="userId" :label="$t('DE_USER_COL_ID', '用户标识')" width="120" />
+      <el-table-column prop="userId" :label="$t('G2_FIELD_USER_ID', '用户标识')" width="120" />
       <el-table-column prop="realName" :label="$t('G2_FIELD_REAL_NAME', '姓名')" min-width="140" show-overflow-tooltip />
       <el-table-column prop="mobile" :label="$t('G2_FIELD_MOBILE', '手机号')" width="160" />
     </el-table>

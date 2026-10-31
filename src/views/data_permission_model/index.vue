@@ -2,8 +2,8 @@
   <div class="data_permission_model-page">
     <el-card class="data_permission_model-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODEL_NAME', '模型名称')">
-          <el-input v-model="queryForm.modelName" :placeholder="$t('DE_DATA_PERMISSION_MODEL_PH_MODEL_NAME', '请输入模型名称')" clearable style="width: 200px" />
+        <el-form-item :label="$t('G2_FIELD_MODEL_NAME', '模型名称')">
+          <el-input v-model="queryForm.modelName" :placeholder="$t('G2_PH_MODEL_NAME', '请输入模型名称')" clearable style="width: 200px" />
         </el-form-item>
         <el-form-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODULE_CODE', '模块编码')">
           <el-input v-model="queryForm.moduleCode" :placeholder="$t('DE_DATA_PERMISSION_MODEL_PH_MODULE_CODE', '请输入模块编码')" clearable style="width: 200px" />
@@ -20,19 +20,19 @@
 
     <div class="data_permission_model-page__header">
       <div class="data_permission_model-page__title-group">
-        <h2>{{ $t('DE_DATA_PERMISSION_MODEL_TITLE', '管理权限模型') }}</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_MODEL_TITLE', '权限模型') }}</h2>
       </div>
       <el-button type="primary" v-permission="'data_permission_model:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_MODEL_BTN_ADD', '新增权限模型') }}</el-button>
     </div>
 
     <SortableTable :data="tableData" border stripe style="width: 100%" :enable-multi-sort="true" @sort-change="handleSortChange">
       <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
-      <el-table-column prop="modelName" :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODEL_NAME', '模型名称')" min-width="160" show-overflow-tooltip />
-      <el-table-column prop="moduleCode" :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODULE_CODE', '模块编码')" width="180" />
-      <el-table-column prop="tableName" :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_TABLE_NAME', '业务表名')" width="180" />
+      <el-table-column prop="modelName" :label="$t('G2_FIELD_MODEL_NAME', '模型名称')" min-width="150" show-overflow-tooltip />
+      <el-table-column prop="moduleCode" :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODULE_CODE', '模块编码')" width="170" />
+      <el-table-column prop="tableName" :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_TABLE_NAME', '业务表名')" width="170" />
       <TableColumn prop="createTime" :label="$t('G2_FIELD_CREATE_TIME', '创建时间')" width="180" :sortable="true" />
       <TableColumn prop="updateTime" :label="$t('G2_FIELD_UPDATE_TIME', '更新时间')" width="180" :sortable="true" />
-      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="300">
+      <el-table-column :label="$t('G2_FIELD_ACTION', '操作')" fixed="right" width="330">
         <template #default="{ row }">
           <el-button type="primary" link size="small" @click="handleView(row)">{{ $t('G2_BTN_DETAIL', '明细') }}</el-button>
           <el-button type="primary" v-permission="'data_permission_model:edit'" link size="small" @click="handleEdit(row)">{{ $t('G2_BTN_EDIT', '编辑') }}</el-button>
@@ -61,9 +61,9 @@
     </div>
 
     <el-dialog v-model="editDialogVisible" :title="editDialogTitle" width="520px">
-      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
-        <el-form-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODEL_NAME', '模型名称')" prop="modelName">
-          <el-input v-model="editForm.modelName" :placeholder="$t('DE_DATA_PERMISSION_MODEL_PH_MODEL_NAME', '请输入模型名称')" />
+      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="140px">
+        <el-form-item :label="$t('G2_FIELD_MODEL_NAME', '模型名称')" prop="modelName">
+          <el-input v-model="editForm.modelName" :placeholder="$t('G2_PH_MODEL_NAME', '请输入模型名称')" />
         </el-form-item>
         <el-form-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODULE_CODE', '模块编码')" prop="moduleCode">
           <el-input v-model="editForm.moduleCode" :placeholder="$t('DE_DATA_PERMISSION_MODEL_PH_MODULE_CODE', '请输入模块编码')" />
@@ -86,7 +86,7 @@
     <el-dialog v-model="detailDialogVisible" :title="$t('DE_DATA_PERMISSION_MODEL_DETAIL', '权限模型明细')" width="520px">
       <el-descriptions :column="1" border>
         <el-descriptions-item :label="$t('G2_FIELD_ID', 'ID')">{{ currentRow?.id }}</el-descriptions-item>
-        <el-descriptions-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODEL_NAME', '模型名称')">{{ currentRow?.modelName }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('G2_FIELD_MODEL_NAME', '模型名称')">{{ currentRow?.modelName }}</el-descriptions-item>
         <el-descriptions-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_MODULE_CODE', '模块编码')">{{ currentRow?.moduleCode }}</el-descriptions-item>
         <el-descriptions-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_TABLE_NAME', '业务表名')">{{ currentRow?.tableName }}</el-descriptions-item>
         <el-descriptions-item :label="$t('DE_DATA_PERMISSION_MODEL_FIELD_REMARK', '备注说明')">{{ currentRow?.remark }}</el-descriptions-item>
@@ -100,7 +100,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="conditionFieldDialogVisible" :title="$t('DE_DATA_PERMISSION_MODEL_DLG_CONDITION_FIELD', '管理条件字段')" width="1010px">
+    <el-dialog v-model="conditionFieldDialogVisible" width="1010px">
       <DataPermissionFieldPage :model-id="selectedModelId" />
     </el-dialog>
   </div>
@@ -194,7 +194,7 @@ const handleView = (row: DataPermissionModel) => {
 
 const handleDelete = (row: DataPermissionModel) => {
   ElMessageBox.confirm(
-    t('DE_DATA_PERMISSION_MODEL_DEL_CONFIRM', `确认删除权限模型「${row.id}」吗？`),
+    t('DE_DATA_PERMISSION_MODEL_DEL_CONFIRM', { id: row.id }, '确认删除权限模型「{id}」吗？'),
     t('G2_LBL_TIP', '提示'),
     { type: 'warning' },
   )
@@ -228,7 +228,7 @@ const editDialogTitle = computed(() =>
 );
 
 const editRules = computed<FormRules>(() => ({
-  modelName: [{ required: true, message: t('DE_DATA_PERMISSION_MODEL_PH_MODEL_NAME', '请输入模型名称'), trigger: 'blur' }],
+  modelName: [{ required: true, message: t('G2_PH_MODEL_NAME', '请输入模型名称'), trigger: 'blur' }],
   moduleCode: [{ required: true, message: t('DE_DATA_PERMISSION_MODEL_PH_MODULE_CODE', '请输入模块编码'), trigger: 'blur' }],
   tableName: [{ required: true, message: t('DE_DATA_PERMISSION_MODEL_PH_TABLE_NAME', '请输入业务表名'), trigger: 'blur' }],
 }));

@@ -3,7 +3,7 @@
   <div class="data_permission_group_user_relation-page">
     <el-card class="data_permission_group_user_relation-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_FIELD_USER', '用户')">
+        <el-form-item :label="$t('G2_FIELD_USER', '用户')">
           <UserSelect
             v-model="queryForm.userId"
             :organ-id="effectiveOrganId"
@@ -12,7 +12,7 @@
           />
         </el-form-item>
         <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
-          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_PH_STATUS', '请选择状态')" />
+          <DictSelect v-model="queryForm.status" usage-code="ENABLE_STATUS" :api-method="DictItemApi.select" :placeholder="$t('G2_PH_STATUS', '请选择状态')" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
@@ -23,7 +23,7 @@
 
     <div class="data_permission_group_user_relation-page__header">
       <div class="data_permission_group_user_relation-page__title-group">
-        <h2>{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_TITLE', '管理关联用户') }}</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_TITLE', '关联用户') }}</h2>
       </div>
       <el-button type="primary" v-permission="'data_permission_group_user_relation:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_BTN_ADD', '关联用户') }}</el-button>
     </div>
@@ -40,7 +40,7 @@
             permission="data_permission_group_user_relation:status_update"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
-            usage-code="COMMON_STATUS"
+            usage-code="ENABLE_STATUS"
             :api-method="({ nextValue }) => updateRelationStatus(row.id, nextValue)"
             @success="loadData"
           />
@@ -213,7 +213,7 @@ const handlePageChange = (page: number) => {
 
 const handleDelete = (row: DataPermissionGroupUserRelation) => {
   ElMessageBox.confirm(
-    t('DE_DATA_PERMISSION_GROUP_USER_RELATION_DEL_CONFIRM', `确认删除关联用户「${row.realName || row.userId}」吗？`),
+    t('DE_DATA_PERMISSION_GROUP_USER_RELATION_DEL_CONFIRM', { name: row.realName || row.userId }, '确认删除关联用户「{name}」吗？'),
     t('G2_LBL_TIP', '提示'),
     { type: 'warning' },
   )
@@ -270,7 +270,7 @@ const submitAssociate = async () => {
     if (count === 0) {
       ElMessage.warning(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_WARN_ALL_LINKED', '所选用户均已关联，未新增记录'));
     } else {
-      ElMessage.success(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_MSG_LINK_OK', `成功关联 ${count} 名用户`));
+      ElMessage.success(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_MSG_LINK_OK', { count }, '成功关联 {count} 名用户'));
     }
     associateDialogVisible.value = false;
     await loadData();
