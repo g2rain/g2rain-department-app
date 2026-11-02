@@ -2,7 +2,7 @@ schemaVersion: 1
 name: g2rain-department-app
 family: frontend-app
 role: G2rain 部门与数据权限管理微前端应用
-version: 0.1.0
+version: 1.0.0
 license: Apache-2.0
 
 architectureBaseline:
@@ -77,7 +77,7 @@ commands:
   preview: npm run preview
   codegen: npm run build:generate -- --tables=<table>
   resourceConfig: npm run build:config
-  image: docker build --build-arg VITE_BUILD_MODE=production -t g2rain/g2rain-department-app:<tag> .
+  image: docker build --build-arg VITE_BUILD_MODE=production -t ghcr.io/g2rain/g2rain-department-app:<tag> .
 
 generators:
   engine: create-g2rain-app

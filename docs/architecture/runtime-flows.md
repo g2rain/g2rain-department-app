@@ -15,5 +15,17 @@
 4. 路由变化通知 main-shell；update 刷新 Token、Locale 和路由。
 5. unmount 按实例清理 Vue、Router、shell 和 Token 失效监听。
 
+## 数据权限配置链路
+
+管理端配置顺序应与后端策略语义一致：
+
+1. `data_permission_model` / `field`：声明模块、表与可参与规则的字段。
+2. `data_permission_meta`：为机构绑定模型并设置默认读写位。
+3. `data_permission_group`：按所属部门路径创建权限组。
+4. `data_permission_group_user_relation`：分配小组成员。
+5. `data_permission_other`：在组上配置相对默认范围的例外规则。
+
+运行时由业务服务经 starter 调用 department `policy_resolve` 消费结果；前端不执行行级隔离。页面约定见 [业务页面约定](../development/views-conventions.md)。
+
 当前 i18n 加载失败的降级分支存在 TypeScript 编译错误，修复前构建无法完成。
 
