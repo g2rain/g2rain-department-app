@@ -4,8 +4,8 @@
 
 - `package.json` 没有 test 或 lint 脚本。
 - 未发现自动化测试套件；`test.api.ts` 是 Mock 数据，不是测试。
-- 2026-09-06 执行 `npm run build`，在 `vue-tsc` 阶段失败：`src/platform/i18n/index.ts:52` 引用了不存在的 `localeCode`。
-- Vite 构建因此未执行，自动化测试数为 0。
+- 当前没有独立自动化测试套件，自动化测试数为 0；`npm run build` 是类型检查与 Vite 构建的完整可用验证。
+- 发布准备工作流在干净的 GitHub runner 上执行 `npm ci --legacy-peer-deps` 后运行 `npm run build`。本地应先完成相同安装，再单独记录构建结果；容器构建、浏览器联调和实际部署不由此推导。
 
 ## 最低验证
 

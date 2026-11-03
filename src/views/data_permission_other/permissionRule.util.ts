@@ -232,27 +232,28 @@ export function parsePermissionRule(rule: string): PermissionRuleRow[] {
     .filter((row): row is PermissionRuleRow => row != null);
 }
 
+/** 返回 i18n messageCode；通过则 null */
 export function validatePermissionRuleRows(rows: PermissionRuleRow[]): string | null {
   const activeRows = rows.filter(row => row.fieldName || row.valuesText.trim());
   if (activeRows.length === 0) {
-    return '请至少配置一条权限规则';
+    return 'DE_DATA_PERMISSION_OTHER_ERR_RULE_MIN';
   }
 
   for (const row of rows) {
     if (!row.fieldName) {
-      return '请选择权限字段';
+      return 'DE_DATA_PERMISSION_OTHER_ERR_FIELD';
     }
     if (!row.valuesText.trim()) {
-      return '请输入字段值';
+      return 'DE_DATA_PERMISSION_OTHER_ERR_VALUES';
     }
     if (parseValuesText(row.valuesText).length === 0) {
-      return '请输入有效的字段值';
+      return 'DE_DATA_PERMISSION_OTHER_ERR_VALUES_INVALID';
     }
   }
 
   const fieldNames = rows.map(row => row.fieldName);
   if (new Set(fieldNames).size !== fieldNames.length) {
-    return '权限字段不能重复';
+    return 'DE_DATA_PERMISSION_OTHER_ERR_FIELD_DUP';
   }
 
   return null;

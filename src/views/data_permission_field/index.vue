@@ -17,7 +17,7 @@
 
     <div class="data_permission_field-page__header">
       <div class="data_permission_field-page__title-group">
-        <h2>{{ $t('DE_DATA_PERMISSION_FIELD_TITLE', '管理条件字段') }}</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_FIELD_TITLE', '条件字段') }}</h2>
       </div>
       <el-button type="primary" v-permission="'data_permission_field:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_FIELD_BTN_ADD', '新增条件字段') }}</el-button>
     </div>
@@ -50,7 +50,7 @@
     </div>
 
     <el-dialog v-model="editDialogVisible" :title="editDialogTitle" width="520px">
-      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
+      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="140px">
         <el-form-item :label="$t('DE_DATA_PERMISSION_FIELD_FIELD_NAME', '条件字段')" prop="fieldName">
           <el-input v-model="editForm.fieldName" :placeholder="$t('DE_DATA_PERMISSION_FIELD_PH_FIELD_NAME', '请输入条件字段')" />
         </el-form-item>
@@ -79,7 +79,6 @@ import { t } from '@platform/i18n';
 import { DataPermissionFieldApi } from './api';
 import type { DataPermissionField, DataPermissionFieldPayload, DataPermissionFieldQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { showErrorMessage } from '@/components';
 
 const props = defineProps<{ modelId?: number }>();
 
@@ -112,8 +111,8 @@ const loadData = async () => {
 
     tableData.value = pageData.records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -143,21 +142,17 @@ const handlePageChange = (page: number) => {
 
 const handleDelete = (row: DataPermissionField) => {
   ElMessageBox.confirm(
-    t('DE_DATA_PERMISSION_FIELD_DEL_CONFIRM', `确认删除条件字段「${row.id}」吗？`),
+    t('DE_DATA_PERMISSION_FIELD_DEL_CONFIRM', { id: row.id }, '确认删除条件字段「{id}」吗？'),
     t('G2_LBL_TIP', '提示'),
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DataPermissionFieldApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DataPermissionFieldApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -183,7 +178,7 @@ const editDialogTitle = computed(() =>
 const editRules = computed<FormRules>(() => ({
   fieldName: [{ required: true, message: t('DE_DATA_PERMISSION_FIELD_PH_FIELD_NAME', '请输入条件字段'), trigger: 'blur' }],
   fieldTitle: [{ required: true, message: t('DE_DATA_PERMISSION_FIELD_PH_FIELD_TITLE', '请输入条件名称'), trigger: 'blur' }],
-  sortOrder: [{ required: true, message: t('DE_DATA_PERMISSION_FIELD_PH_SORT_ORDER', '请输入排序'), trigger: 'blur' }],
+  sortOrder: [{ required: true, message: t('G2_PH_SORT', '请输入排序'), trigger: 'blur' }],
 }));
 
 const handleCreate = () => {
@@ -224,17 +219,13 @@ const submitEdit = async () => {
     sortOrder: editForm.sortOrder,
   };
 
-  try {
-    if (isEdit.value) {
-      payload.id = editForm.id;
-    }
-    await DataPermissionFieldApi.save(payload);
-    ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
-    await loadData();
-    editDialogVisible.value = false;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_SAVE_FAIL', '保存失败'));
+  if (isEdit.value) {
+    payload.id = editForm.id;
   }
+  await DataPermissionFieldApi.save(payload);
+  ElMessage.success(isEdit.value ? t('G2_MSG_UPDATE_OK', '更新成功') : t('G2_MSG_ADD_OK', '新增成功'));
+  await loadData();
+  editDialogVisible.value = false;
 };
 
 watch(
@@ -247,7 +238,7 @@ watch(
 <style scoped>
 .data_permission_field-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -260,7 +251,7 @@ watch(
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -285,7 +276,7 @@ watch(
 
 .data_permission_field-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_field-page__pagination {

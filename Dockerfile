@@ -6,6 +6,9 @@ WORKDIR /app
 ARG VITE_BUILD_MODE=production
 
 COPY package.json package-lock.json .npmrc ./
+# create-g2rain-app 为 file:../g2rain-app-cli；镜像构建不需要 CLI，放最小 stub 以满足 npm ci
+RUN mkdir -p /g2rain-app-cli \
+ && printf '%s\n' '{"name":"create-g2rain-app","version":"1.0.2","private":true}' > /g2rain-app-cli/package.json
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --legacy-peer-deps --no-audit --no-fund --loglevel=warn
 
@@ -31,6 +34,15 @@ RUN if [ -n "$VITE_BUILD_MODE" ]; then \
 # 阶段 2：OpenResty + OpenSSL 3 + luaossl
 # ------------------------------------------------------------
 FROM openresty/openresty:alpine
+
+ARG IMAGE_VERSION=1.0.0
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.source="https://github.com/g2rain/g2rain-department-app" \
+      org.opencontainers.image.url="https://github.com/g2rain/g2rain-department-app" \
+      org.opencontainers.image.title="g2rain-department-app" \
+      org.opencontainers.image.version="${IMAGE_VERSION}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.licenses="Apache-2.0"
 
 RUN set -eux; \
     sed -i 's|dl-cdn.alpinelinux.org|mirrors.aliyun.com|g' /etc/apk/repositories; \

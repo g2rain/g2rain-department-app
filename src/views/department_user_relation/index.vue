@@ -3,13 +3,13 @@
   <div class="department_user_relation-page">
     <el-card class="department_user_relation-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item v-if="!embedded" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_ORGAN_ID', '机构ID')">
-          <el-input v-model="queryForm.organId" :placeholder="$t('DE_DEPARTMENT_USER_RELATION_PH_ORGAN_ID', '请输入机构ID')" clearable style="width: 200px" />
+        <el-form-item v-if="!embedded" :label="$t('G2_FIELD_ORGAN', '所属机构')">
+          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('G2_PH_ORGAN', '请选择所属机构')" width="200px" />
         </el-form-item>
         <el-form-item v-if="!embedded" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_DEPARTMENT_ID', '部门ID')">
           <el-input v-model="queryForm.departmentId" :placeholder="$t('DE_DEPARTMENT_USER_RELATION_PH_DEPARTMENT_ID', '请输入部门ID')" clearable style="width: 200px" />
         </el-form-item>
-        <el-form-item :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_USER', '用户')">
+        <el-form-item :label="$t('G2_FIELD_USER', '用户')">
           <UserSelect
             v-model="queryForm.userId"
             :organ-id="effectiveOrganId"
@@ -26,14 +26,18 @@
 
     <div class="department_user_relation-page__header">
       <div class="department_user_relation-page__title-group">
-        <h2>{{ $t('DE_DEPARTMENT_USER_RELATION_TITLE', '管理部门用户') }}</h2>
+        <h2>{{ $t('DE_DEPARTMENT_USER_RELATION_TITLE', '部门用户') }}</h2>
       </div>
       <el-button type="primary" v-permission="'department_user_relation:add'" @click="handleCreate">{{ $t('DE_DEPARTMENT_USER_RELATION_BTN_ADD', '关联用户') }}</el-button>
     </div>
 
     <el-table :data="tableData" border stripe style="width: 100%">
       <el-table-column prop="id" :label="$t('G2_FIELD_ID', 'ID')" width="120" />
-      <el-table-column v-if="!embedded" prop="organId" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_ORGAN_ID', '机构ID')" width="140" />
+      <el-table-column v-if="!embedded" :label="$t('G2_FIELD_ORGAN', '所属机构')" width="140">
+        <template #default="{ row }">
+          {{ row.organName || row.organId }}
+        </template>
+      </el-table-column>
       <el-table-column v-if="!embedded" prop="departmentId" :label="$t('DE_DEPARTMENT_USER_RELATION_FIELD_DEPARTMENT_ID', '部门ID')" width="140" />
       <el-table-column prop="userId" :label="$t('DE_DEPARTMENT_USER_RELATION_COL_USER_ID', '用户ID')" width="120" />
       <el-table-column prop="realName" :label="$t('G2_FIELD_REAL_NAME', '姓名')" min-width="120" show-overflow-tooltip />
@@ -81,11 +85,13 @@ import { ref, reactive, watch, computed, nextTick } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { t } from '@platform/i18n';
 import { DepartmentUserRelationApi } from './api';
+import { OrganApi } from '../organ/api';
 import type { DepartmentUserRelation, DepartmentUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { UserSelect, showErrorMessage } from '@/components';
+import { UserSelect } from '@/components';
 import UserPicker from '../user/index.vue';
 import { UserApi } from '../user/api';
+import { OrganSelect } from '@g2rain/ui/platform';
 
 const props = defineProps<{ departmentId?: number; organId?: number }>();
 
@@ -139,13 +145,13 @@ const loadData = async () => {
     const records = pageData.records ?? [];
     try {
       await enrichUserFields(records);
-    } catch (error: any) {
-      showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_USER_FAIL', '加载用户信息失败'));
+    } catch {
+      // 请求失败已由 http 层统一提示
     }
     tableData.value = records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -175,21 +181,17 @@ const handlePageChange = (page: number) => {
 
 const handleDelete = (row: DepartmentUserRelation) => {
   ElMessageBox.confirm(
-    t('DE_DEPARTMENT_USER_RELATION_DEL_CONFIRM', `确认删除部门用户关联「${row.id}」吗？`),
+    t('DE_DEPARTMENT_USER_RELATION_DEL_CONFIRM', { id: row.id }, '确认删除部门用户关联「{id}」吗？'),
     t('G2_LBL_TIP', '提示'),
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DepartmentUserRelationApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DepartmentUserRelationApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -205,16 +207,11 @@ const handleCreate = async () => {
     return;
   }
 
-  try {
-    const relations = await DepartmentUserRelationApi.list({
-      organId: effectiveOrganId.value,
-      departmentId: effectiveDepartmentId.value,
-    });
-    linkedUserIds.value = relations.map(item => item.userId);
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LOAD_LINKED_FAIL', '加载已关联用户失败'));
-    return;
-  }
+  const relations = await DepartmentUserRelationApi.list({
+    organId: effectiveOrganId.value,
+    departmentId: effectiveDepartmentId.value,
+  });
+  linkedUserIds.value = relations.map(item => item.userId);
 
   associateDialogVisible.value = true;
   nextTick(() => userPickerRef.value?.clearSelection());
@@ -237,12 +234,10 @@ const submitAssociate = async () => {
     if (count === 0) {
       ElMessage.warning(t('DE_DEPARTMENT_USER_RELATION_MSG_ALL_LINKED', '所选用户均已关联，未新增记录'));
     } else {
-      ElMessage.success(t('DE_DEPARTMENT_USER_RELATION_MSG_LINK_OK', `成功关联 ${count} 名用户`));
+      ElMessage.success(t('DE_DEPARTMENT_USER_RELATION_MSG_LINK_OK', { count }, '成功关联 {count} 名用户'));
     }
     associateDialogVisible.value = false;
     await loadData();
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DEPARTMENT_USER_RELATION_MSG_LINK_FAIL', '关联失败'));
   } finally {
     associateSaving.value = false;
   }
@@ -258,7 +253,7 @@ watch(
 <style scoped>
 .department_user_relation-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -271,7 +266,7 @@ watch(
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -296,7 +291,7 @@ watch(
 
 .department_user_relation-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .department_user_relation-page__pagination {

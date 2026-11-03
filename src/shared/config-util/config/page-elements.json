@@ -33,14 +33,6 @@
   },
   {
     "parentId": null,
-    "pageElementName": "删除",
-    "pageElementCode": "data_permission_group_user_relation:delete",
-    "pageElementType": "button",
-    "pageCode": "data_permission_group_user_relation",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
     "pageElementName": "状态变更",
     "pageElementCode": "data_permission_group_user_relation:status_update",
     "pageElementType": "switch",
@@ -57,73 +49,9 @@
   },
   {
     "parentId": null,
-    "pageElementName": "删除",
-    "pageElementCode": "data_permission_group:delete",
-    "pageElementType": "button",
-    "pageCode": "data_permission_group",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "编辑",
-    "pageElementCode": "data_permission_group:edit",
-    "pageElementType": "button",
-    "pageCode": "data_permission_group",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "关联用户",
-    "pageElementCode": "data_permission_group:relation_users",
-    "pageElementType": "button",
-    "pageCode": "data_permission_group",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "规则配置",
-    "pageElementCode": "data_permission_group:rule_config",
-    "pageElementType": "button",
-    "pageCode": "data_permission_group",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "状态变更",
-    "pageElementCode": "data_permission_group:status_update",
-    "pageElementType": "switch",
-    "pageCode": "data_permission_group",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
     "pageElementName": "新增",
     "pageElementCode": "data_permission_meta:add",
     "pageElementType": "button",
-    "pageCode": "data_permission_meta",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "删除",
-    "pageElementCode": "data_permission_meta:delete",
-    "pageElementType": "button",
-    "pageCode": "data_permission_meta",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "编辑",
-    "pageElementCode": "data_permission_meta:edit",
-    "pageElementType": "button",
-    "pageCode": "data_permission_meta",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "状态变更",
-    "pageElementCode": "data_permission_meta:status_update",
-    "pageElementType": "switch",
     "pageCode": "data_permission_meta",
     "status": "ENABLED"
   },
@@ -137,7 +65,7 @@
   },
   {
     "parentId": null,
-    "pageElementName": "条件字段",
+    "pageElementName": "condition_field",
     "pageElementCode": "data_permission_model:condition_field",
     "pageElementType": "button",
     "pageCode": "data_permission_model",
@@ -169,30 +97,6 @@
   },
   {
     "parentId": null,
-    "pageElementName": "删除",
-    "pageElementCode": "data_permission_other:delete",
-    "pageElementType": "button",
-    "pageCode": "data_permission_other",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "编辑",
-    "pageElementCode": "data_permission_other:edit",
-    "pageElementType": "button",
-    "pageCode": "data_permission_other",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "状态变更",
-    "pageElementCode": "data_permission_other:status_update",
-    "pageElementType": "switch",
-    "pageCode": "data_permission_other",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
     "pageElementName": "新增",
     "pageElementCode": "department_user_relation:add",
     "pageElementType": "button",
@@ -211,30 +115,6 @@
     "parentId": null,
     "pageElementName": "新增",
     "pageElementCode": "department:add",
-    "pageElementType": "button",
-    "pageCode": "department",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "删除",
-    "pageElementCode": "department:delete",
-    "pageElementType": "button",
-    "pageCode": "department",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "编辑",
-    "pageElementCode": "department:edit",
-    "pageElementType": "button",
-    "pageCode": "department",
-    "status": "ENABLED"
-  },
-  {
-    "parentId": null,
-    "pageElementName": "关联用户",
-    "pageElementCode": "department:relation_users",
     "pageElementType": "button",
     "pageCode": "department",
     "status": "ENABLED"

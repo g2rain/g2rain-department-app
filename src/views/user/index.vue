@@ -2,8 +2,8 @@
   <div class="user-picker" :class="{ 'user-picker--embedded': embedded }">
     <el-card v-if="!embedded" class="user-picker__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item :label="$t('DE_FIELD_ORGAN', '所属机构')">
-          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('DE_PH_ORGAN', '请选择所属机构')" width="200px" />
+        <el-form-item :label="$t('G2_FIELD_ORGAN', '所属机构')">
+          <OrganSelect v-model="queryForm.organId" :api-method="OrganApi.searchOrgans" :placeholder="$t('G2_PH_ORGAN', '请选择所属机构')" width="200px" />
         </el-form-item>
         <el-form-item :label="$t('DE_USER_FIELD_SEARCH', '姓名/手机')">
           <el-input v-model="queryForm.searchName" :placeholder="$t('DE_USER_PH_SEARCH', '请输入姓名或手机号')" clearable style="width: 200px" />
@@ -35,7 +35,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="48" :selectable="isRowSelectable" />
-      <el-table-column prop="id" :label="$t('DE_USER_COL_ID', '用户标识')" width="120" />
+      <el-table-column prop="id" :label="$t('G2_FIELD_USER_ID', '用户标识')" width="120" />
       <el-table-column prop="realName" :label="$t('G2_FIELD_REAL_NAME', '姓名')" min-width="140" />
       <el-table-column prop="mobile" :label="$t('G2_FIELD_MOBILE', '手机号码')" width="160" />
       <el-table-column prop="email" :label="$t('G2_FIELD_EMAIL', '邮箱')" min-width="180" show-overflow-tooltip />
@@ -58,12 +58,11 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed, nextTick } from 'vue';
 import type { TableInstance } from 'element-plus';
-import { t } from '@platform/i18n';
 import { UserApi } from './api';
 import { OrganApi } from '../organ/api';
 import type { User, UserQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { OrganSelect, showErrorMessage } from '@/components';
+import { OrganSelect } from '@g2rain/ui/platform';
 
 const props = withDefaults(
   defineProps<{
@@ -126,8 +125,8 @@ const loadData = async () => {
     tableData.value = pageData.records || [];
     pagination.total = pageData.total;
     syncTableSelection();
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_USER_MSG_LOAD_FAIL', '加载用户列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -227,7 +226,7 @@ defineExpose({
 
 .user-picker__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .user-picker__inline-search {

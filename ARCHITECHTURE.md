@@ -113,17 +113,11 @@ Token 管理位于 `src/store/modules/token.ts`，核心策略：
 
 ## 9. 生成能力（架构视角）
 
-### 9.1 代码生成器
+权威说明见 `docs/development/code-generation.md` 与 `docs/development/resource-generation.md`。
 
-目录：`src/shared/generator/`  
-用途：从 `database.sql` 解析表结构，生成视图与配套文件。
-
-### 9.2 资源配置生成器
-
-目录：`src/shared/config-util/`  
-用途：从路由、Vue 权限点、API 定义生成资源配置 JSON。
-
-这两部分构成模板的“低代码加速层”。
+- 代码生成：输入 `scripts/database.sql`，引擎 `create-g2rain-app`（`npm run build:generate` / `scripts/run-generate.mjs`）。
+- 资源配置：产物在 `src/shared/config-util/config/*.json`，引擎同为 `create-g2rain-app`（`npm run build:config`）。
+- `src/shared/generator/` 仅保留说明 README，不再存放引擎源码。
 
 ## 10. 目录结构
 
