@@ -10,7 +10,7 @@
 [![Vite](https://img.shields.io/badge/Vite-7.3-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Qiankun](https://img.shields.io/badge/micro--frontend-Qiankun-1677FF)](https://qiankun.umijs.org/)
 
-> 下一代AI软件开发范式，AI原生Agent平台，开源的企业级SaaS底座。
+G2rain（谷雨）是面向企业的开源智能体平台，连接模型、知识与业务工具，并提供 SaaS 基座与应用开发工具链。智能体平台与智能客服已开源；交易、订阅和计量计费等商业化能力仍在规划中。具体组件的能力、版本与接入方式以各责任仓库为准。
 
 `g2rain-department-app` 是 G2rain 的部门与数据权限管理微前端应用，为平台管理员提供部门、部门成员关系、数据权限模型、字段、元数据、权限小组及规则配置界面。应用既可由 `g2rain-main-shell` 通过 qiankun 装载，也支持独立模式联调；业务数据和最终授权由后端服务负责。
 
@@ -20,13 +20,13 @@
 
 | 项目 | 当前状态 |
 | --- | --- |
-| 项目版本 | `0.1.0` |
+| 项目版本 | `1.0.0` |
 | 架构规范 | `frontend-app 1.0.0`，固定基线 `architecture-v1.1.0` |
 | 采用状态 | `planned`，尚未完成正式采用 |
-| 构建验证 | `npm run build` 当前失败：`src/platform/i18n/index.ts:52` 引用了未定义的 `localeCode` |
+| 构建验证 | `npm run build` 是发布前的完整可用构建（类型检查和 Vite 构建）；实际结果以本次验证记录为准 |
 | 自动化测试 | 未配置 test/lint 脚本，当前未发现自动化测试套件 |
 
-当前构建问题修复前，不应将本项目标记为可发布。完整偏差和验证记录见[架构偏差](docs/architecture/deviations.md)与[测试说明](docs/development/testing.md)。
+本仓库只交付部门与数据权限管理微前端，不代表或替代平台整体、IAM、Gateway、领域服务或主壳能力。完整偏差和验证记录见[架构偏差](docs/architecture/deviations.md)与[测试说明](docs/development/testing.md)。
 
 ## 核心能力
 
@@ -112,16 +112,14 @@ npm run dev
 
 ## 页面代码生成
 
-代码生成器读取 `src/shared/generator/database.sql`，必须通过 `--tables` 指定目标表：
+先把需要生成的 `CREATE TABLE` 放入 `scripts/database.sql`，再执行（引擎为 `create-g2rain-app`）：
 
 ```bash
-npm run build:generate -- --tables=department
-npm run build:generate -- --tables=department,data_permission_model
+node ./scripts/run-generate.mjs --tables=department
+node ./scripts/run-generate.mjs --tables=department,data_permission_model --skip-mock
 ```
 
-可使用 `--no-view`、`--no-api`、`--no-mock`、`--no-route` 跳过对应输出。生成过程会写入或覆盖 `src/views/<table>` 下的页面、API、类型、Mock，并可能更新 `src/views/route-map.ts`；执行前应保存现有工作，执行后必须逐文件审查。
-
-详细参数见[代码生成文档](src/shared/generator/README.md)。
+生成器会写入或覆盖 `src/views/<table>/` 下的页面、API、类型、Mock，并按选项更新 `src/views/route-map.ts`。生成前先检查 Git 状态，生成后必须 Review Diff。详见[代码生成](docs/development/code-generation.md)。
 
 ## 资源配置生成
 
@@ -129,13 +127,13 @@ npm run build:generate -- --tables=department,data_permission_model
 npm run build:config
 ```
 
-该命令扫描 `src/views/route-map.ts` 和页面中的权限指令，并覆盖以下已跟踪文件：
+当前实现生成：
 
 - `src/shared/config-util/config/resources.json`
 - `src/shared/config-util/config/pages.json`
 - `src/shared/config-util/config/page-elements.json`
 
-当前 API parser/writer 未接入主流程，因此 API 资源数量为 0。页面或权限元素变化后，应运行命令、审查差异，再执行构建和双模式人工回归。详见[资源配置生成文档](src/shared/config-util/README.md)。
+当前 API 端点解析未接入主流程，`apiEndpoints` 为空。详见[资源配置生成](docs/development/resource-generation.md)。
 
 ## 配置说明
 
@@ -163,15 +161,24 @@ npm ci --legacy-peer-deps
 npm run build
 ```
 
-镜像脚本示例：
+镜像脚本示例（本地容器构建，默认镜像地址为 GHCR）：
 
 ```bash
-./build.sh --image g2rain/g2rain-department-app --tag <tag> --build-mode production
+./build.sh --image ghcr.io/g2rain/g2rain-department-app --tag 1.0.0 --build-mode production
 ```
 
-镜像使用 Node.js 22 构建，并由 OpenResty 提供静态资源和 Gateway/IAM 代理。当前 Dockerfile 直接执行 Vite 构建，会绕过 `vue-tsc`，也不会自动刷新资源配置；因此镜像构建成功不能替代 `npm run build` 和资源差异审查。容器声明端口为 `8080`，Nginx 默认监听端口为 `80`，部署平台需要显式配置映射。
+镜像使用 Node.js 22 构建，并由 OpenResty 提供静态资源和 Gateway/IAM 代理。Dockerfile 直接执行 Vite 构建，会绕过 `vue-tsc`，也不会自动刷新资源配置；因此镜像构建成功不能替代 `npm run build` 和资源差异审查。容器声明端口为 `8080`，实际监听端口由 `SERVER_PORT`（默认 `80`）决定，部署平台须显式映射。
 
 发布前请验证 Context Path、SSO、Gateway/IAM 连接、资源 JSON、密钥挂载、SPA 刷新和静态缓存。详见[部署文档](docs/operations/deployment.md)。
+
+## GHCR 镜像
+
+- 镜像地址：`ghcr.io/g2rain/g2rain-department-app`。
+- 稳定版发布 `1.0.0` 与 `sha-<完整提交 SHA>` 两个标签；不发布或更新 `latest`。
+- 包公开后可匿名拉取：`docker pull ghcr.io/g2rain/g2rain-department-app:1.0.0`。
+- 仅推送精确 `v<major>.<minor>.<patch>` Git tag 才会触发发布；tag 指向的提交必须已在 `main` 历史中，包含同名且非空的发布说明，并与项目版本一致。
+
+完整的本地构建、CI、容器、GHCR 权限、首次公开和部署验证边界见[部署文档](docs/operations/deployment.md)。
 
 ## 项目结构
 
@@ -235,7 +242,7 @@ npm run build
 4. 运行适用的构建与检查。
 5. 推送分支并提交 Pull Request。
 
-提交前请按[完成定义](docs/development/definition-of-done.md)核对变更。当前已知构建失败不是可忽略状态，应在发布前修复并重新验证。
+提交前请按[完成定义](docs/development/definition-of-done.md)核对变更，并在发布前重新运行适用验证。
 
 ## 许可证
 

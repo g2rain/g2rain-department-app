@@ -27,6 +27,7 @@
 - [配置](operations/configuration.md)
 - [部署](operations/deployment.md)
 - [故障排查](operations/troubleshooting.md)
+- [发布记录](releases/README.md)
 - [安全边界](security/security-boundaries.md)
 - [需求索引](requirements/README.md)
 - [项目决策](decisions/README.md)

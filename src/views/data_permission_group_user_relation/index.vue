@@ -3,7 +3,7 @@
   <div class="data_permission_group_user_relation-page">
     <el-card class="data_permission_group_user_relation-page__search" shadow="never">
       <el-form :model="queryForm" :inline="true" class="query-form">
-        <el-form-item :label="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_FIELD_USER', '用户')">
+        <el-form-item :label="$t('G2_FIELD_USER', '用户')">
           <UserSelect
             v-model="queryForm.userId"
             :organ-id="effectiveOrganId"
@@ -12,7 +12,7 @@
           />
         </el-form-item>
         <el-form-item :label="$t('G2_FIELD_STATUS', '状态')">
-          <DictSelect v-model="queryForm.status" usage-code="COMMON_STATUS" :api-method="DictItemApi.select" :placeholder="$t('DE_DATA_PERMISSION_GROUP_USER_RELATION_PH_STATUS', '请选择状态')" />
+          <DictSelect v-model="queryForm.status" usage-code="ENABLE_STATUS" :api-method="DictItemApi.select" :placeholder="$t('G2_PH_STATUS', '请选择状态')" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">{{ $t('G2_BTN_QUERY', '查询') }}</el-button>
@@ -23,7 +23,7 @@
 
     <div class="data_permission_group_user_relation-page__header">
       <div class="data_permission_group_user_relation-page__title-group">
-        <h2>{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_TITLE', '管理关联用户') }}</h2>
+        <h2>{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_TITLE', '关联用户') }}</h2>
       </div>
       <el-button type="primary" v-permission="'data_permission_group_user_relation:add'" @click="handleCreate">{{ $t('DE_DATA_PERMISSION_GROUP_USER_RELATION_BTN_ADD', '关联用户') }}</el-button>
     </div>
@@ -37,11 +37,11 @@
         <template #default="{ row }">
           <StatusSwitch
             v-model="row.status"
-            v-permission="'data_permission_group_user_relation:status_update'"
+            permission="data_permission_group_user_relation:status_update"
             active-value="ACTIVE"
             inactive-value="INACTIVE"
-            usage-code="COMMON_STATUS"
-            :api-method="({ nextValue }) => DataPermissionGroupUserRelationApi.updateStatus(row.id, String(nextValue))"
+            usage-code="ENABLE_STATUS"
+            :api-method="({ nextValue }) => updateRelationStatus(row.id, nextValue)"
             @success="loadData"
           />
         </template>
@@ -95,8 +95,12 @@ import { DictItemApi } from '../dict/api';
 import DepartmentMemberPicker from '../department_user_relation/picker.vue';
 import type { DataPermissionGroupUserRelation, DataPermissionGroupUserRelationQuery } from './type';
 import type { PageSelectListDto } from '@platform/types/api.type';
-import { UserSelect, DictSelect, StatusSwitch, showErrorMessage } from '@/components';
+import { DictSelect, StatusSwitch } from '@g2rain/ui/platform';
+import { UserSelect } from '@/components';
 import { UserApi } from '../user/api';
+
+const updateRelationStatus = (id: number, nextValue: string | number | boolean) =>
+  DataPermissionGroupUserRelationApi.updateStatus(id, String(nextValue));
 
 const props = defineProps<{ groupId?: number; organId?: number; departmentId?: number }>();
 
@@ -129,8 +133,8 @@ const resolveDepartmentId = async () => {
     const group = await DataPermissionGroupApi.getById(props.groupId);
     const depts = await DepartmentApi.list({ organId: props.organId, deptPath: group.deptPath });
     resolvedDepartmentId.value = depts[0]?.id;
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_RESOLVE_DEPT', '解析所属部门失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -174,13 +178,13 @@ const loadData = async () => {
     const records = pageData.records ?? [];
     try {
       await enrichUserFields(records);
-    } catch (error: any) {
-      showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LOAD_USER', '加载用户信息失败'));
+    } catch {
+      // 请求失败已由 http 层统一提示
     }
     tableData.value = records;
     pagination.total = pageData.total;
-  } catch (error: any) {
-    showErrorMessage(error || t('G2_MSG_LOAD_FAIL', '加载列表失败'));
+  } catch {
+    // 请求失败已由 http 层统一提示
   }
 };
 
@@ -209,21 +213,17 @@ const handlePageChange = (page: number) => {
 
 const handleDelete = (row: DataPermissionGroupUserRelation) => {
   ElMessageBox.confirm(
-    t('DE_DATA_PERMISSION_GROUP_USER_RELATION_DEL_CONFIRM', `确认删除关联用户「${row.realName || row.userId}」吗？`),
+    t('DE_DATA_PERMISSION_GROUP_USER_RELATION_DEL_CONFIRM', { name: row.realName || row.userId }, '确认删除关联用户「{name}」吗？'),
     t('G2_LBL_TIP', '提示'),
     { type: 'warning' },
   )
     .then(async () => {
-      try {
-        await DataPermissionGroupUserRelationApi.remove(row.id);
-        if (tableData.value.length === 1 && pagination.pageNum > 1) {
-          pagination.pageNum--;
-        }
-        await loadData();
-        ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
-      } catch (error: any) {
-        showErrorMessage(error || t('G2_MSG_DELETE_FAIL', '删除失败'));
+      await DataPermissionGroupUserRelationApi.remove(row.id);
+      if (tableData.value.length === 1 && pagination.pageNum > 1) {
+        pagination.pageNum--;
       }
+      await loadData();
+      ElMessage.success(t('G2_MSG_DELETE_OK', '删除成功'));
     })
     .catch(() => {});
 };
@@ -243,16 +243,11 @@ const handleCreate = async () => {
     return;
   }
 
-  try {
-    const relations = await DataPermissionGroupUserRelationApi.list({
-      organId: effectiveOrganId.value,
-      groupId: effectiveGroupId.value,
-    });
-    linkedUserIds.value = relations.map(item => item.userId);
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LOAD_LINKED', '加载已关联用户失败'));
-    return;
-  }
+  const relations = await DataPermissionGroupUserRelationApi.list({
+    organId: effectiveOrganId.value,
+    groupId: effectiveGroupId.value,
+  });
+  linkedUserIds.value = relations.map(item => item.userId);
 
   associateDialogVisible.value = true;
   nextTick(() => memberPickerRef.value?.clearSelection());
@@ -275,12 +270,10 @@ const submitAssociate = async () => {
     if (count === 0) {
       ElMessage.warning(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_WARN_ALL_LINKED', '所选用户均已关联，未新增记录'));
     } else {
-      ElMessage.success(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_MSG_LINK_OK', `成功关联 ${count} 名用户`));
+      ElMessage.success(t('DE_DATA_PERMISSION_GROUP_USER_RELATION_MSG_LINK_OK', { count }, '成功关联 {count} 名用户'));
     }
     associateDialogVisible.value = false;
     await loadData();
-  } catch (error: any) {
-    showErrorMessage(error || t('DE_DATA_PERMISSION_GROUP_USER_RELATION_ERR_LINK_FAIL', '关联失败'));
   } finally {
     associateSaving.value = false;
   }
@@ -302,7 +295,7 @@ watch(
 <style scoped>
 .data_permission_group_user_relation-page {
   padding: 20px;
-  background-color: #f5f7fa;
+  background-color: var(--g2-bg-page);
   min-height: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -315,7 +308,7 @@ watch(
   margin-bottom: 12px;
   margin-top: 0;
   padding: 16px 20px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
   border-radius: 4px;
 }
 
@@ -340,7 +333,7 @@ watch(
 
 .data_permission_group_user_relation-page__search {
   margin-bottom: 12px;
-  background-color: #fff;
+  background-color: var(--g2-bg-container);
 }
 
 .data_permission_group_user_relation-page__pagination {

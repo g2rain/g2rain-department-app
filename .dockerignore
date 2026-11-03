@@ -28,6 +28,10 @@ coverage
 .env.local
 .env.*.local
 
+# 运行密钥必须在容器运行时以 Secret 或只读挂载注入；README 保留为说明。
+lua/keys/*
+!lua/keys/README.md
+
 # 日志文件
 logs
 *.log

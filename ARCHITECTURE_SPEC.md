@@ -86,7 +86,7 @@ views/{module-name}/
 - **Mock 集成**：文件顶部副作用导入 `import './mock';`
 
 ```typescript
-import { getHttpClient } from '@/components/http';
+import { getHttpClient } from '/http';
 import type { Passport, PassportPayload, PassportQuery } from './type';
 import type { PageData, PageSelectListDto } from '@platform/types/api.type';
 import './mock';
@@ -139,7 +139,7 @@ export interface PassportQuery extends BaseSelectListDto {
 - 仅开发环境生效
 
 ```typescript
-import { mockManager } from '@/components/http/mock-data';
+import { mockManager } from '/http';
 import Mock from 'mockjs';
 
 mockManager.register('/passport/list', 'get', (config) => {
